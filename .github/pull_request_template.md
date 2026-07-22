@@ -17,13 +17,17 @@
 
 - [ ] **I. Manifest** — every path referenced by `extension.yml` exists
 - [ ] **II. Namespacing** — command names match `speckit.{id}.{command}`, no core shadowing
-- [ ] **III. Placeholders** — no `CUSTOMIZE:` markers survive in a package
+- [ ] **III. Placeholders** — `CUSTOMIZE:` markers exist only under `template/`, never in the shipped package
 - [ ] **IV. Hooks** — new hooks are `optional: true`, or the auto-execute is justified here
 - [ ] **V. Script parity** — bash and powershell variants both present
 - [ ] **VII. Install-test** — `add --dev` → `list` → run commands → `remove` passed locally
 - [ ] **VIII. Versioning** — version bumped and `CHANGELOG.md` updated in this change
 - [ ] **IX. English** — every file in this diff is written in English
 - [ ] **XII. Distribution** — if releasing, the published ZIP was installed from its release URL
+- [ ] **XV. Graphify dependency** — graph work is delegated to graphify, and a missing install fails loudly
+- [ ] **XVI. Derived artifacts** — no `graphify-out/` content is committed or hand-edited
+- [ ] **XVII. Provenance** — `EXTRACTED` / `INFERRED` / `AMBIGUOUS` labels are carried through unchanged
+- [ ] **XVIII. Lifecycle** — no core command is bypassed or gated, and no graph build runs unprompted
 
 ## Verification
 

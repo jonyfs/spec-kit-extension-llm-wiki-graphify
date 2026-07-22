@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Constitution amended to v2.0.0 (MAJOR).** The project is now governed as one
+  concrete Spec Kit extension, `llm-wiki-graphify`, which bridges the Spec Kit
+  lifecycle to the [graphify](https://github.com/safishamsi/graphify) knowledge-graph
+  tool, rather than as a general-purpose extension template. Principle III is narrowed
+  to the `template/` reference extension. Four principles are added: XV (graphify is a
+  dependency, not a reimplementation), XVI (derived graph artifacts are never committed
+  or hand-edited), XVII (provenance labels survive every hop), and XVIII (the graph
+  serves the lifecycle, never replaces it). A new "Extension Scope: llm-wiki-graphify"
+  section fixes the extension id, command namespace, owned directories, and the
+  explicit out-of-scope list.
+- Pull request template carries checklist rows for Principles XV–XVIII, and the
+  Principle III row is rescoped.
+- `.gitignore` excludes `graphify-out/` per Principle XVI.
+
 ### Added
 
 - `trace` reference extension in `template/` — a read-only feature-traceability check
