@@ -33,3 +33,10 @@ Thumbs.db
 
 # Derived graphify artifacts (Constitution Principle XVII) — never committed
 graphify-out/
+
+# ...with one deliberate exception. The mixed-provenance fixture is hand-built test
+# data, not a build output: the deterministic build emits only EXTRACTED links, so
+# without a committed graph carrying INFERRED and AMBIGUOUS the provenance assertion
+# would pass against a graph that proves nothing.
+!tests/fixtures/graph-build-mixed/graphify-out/
+!tests/fixtures/graph-build-mixed/graphify-out/**

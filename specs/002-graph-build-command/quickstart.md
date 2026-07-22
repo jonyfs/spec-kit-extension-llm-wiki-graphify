@@ -163,9 +163,13 @@ appear; "version too old" alone does not satisfy FR-002.
 ## Scenario 7 — Nothing to examine (FR-013, SC-005)
 
 ```bash
-mkdir -p /tmp/gb-empty && cd /tmp/gb-empty
+mkdir -p /tmp/gb-empty && cd /tmp/gb-empty && touch .gitkeep
 bash <ext>/scripts/bash/graph-build.sh build --confirmed
 ```
+
+The fixture must contain **no readable file at all** — not even a `README.md`. Research
+R16 found that a lone `README.md` produces a two-node graph, because document structure is
+extracted. An "empty" fixture holding a readme tests the opposite of what it claims to.
 
 Expected: **exit 3**, `outcome=nothing-to-examine`, and a message distinct from a
 successful build. Exit 0 here would be the "gate with no subject" failure named in

@@ -37,7 +37,7 @@ evidence_INFERRED=0
 evidence_AMBIGUOUS=0
 elapsed_seconds=2
 output=graphify-out
-coverage=code-only
+coverage=structural
 exclusions=none
 backup=graphify-out/2026-07-22
 ```
@@ -111,8 +111,13 @@ that were never applied would be a false statement about what was read.
    corpus (research R10). Remove nothing else, and never edit a file the tool wrote.
 6. Invoke `graphify update <path>`. This is the whole of the build; the script implements
    no extraction, clustering, or rendering (FR-009, Principle XVI).
-7. Classify the tool's outcome: rebuilt → `built`; "No code-graph topology changes
-   detected" → `current` (research R5); tool failure → `failed`.
+7. Classify the tool's outcome **from its own output**, never from a file count:
+   `No code files found - nothing to rebuild` with no `graph.json` produced →
+   `nothing-to-examine` (research R17); `No code-graph topology changes detected` →
+   `current` (research R5); a rebuild line → `built`; a non-zero exit or a success claim
+   with no `graph.json` → `failed`. A file count cannot distinguish "no files" from "files
+   the tool does not read", and research R16 shows the set it reads is wider than
+   expected.
 8. Count from `graphify-out/graph.json`: entities from `nodes`, relationships from
    **`links`** — not `edges`, which does not exist and silently yields zero (research R4).
 9. Break relationships down by `links[].confidence`, reproducing each label verbatim

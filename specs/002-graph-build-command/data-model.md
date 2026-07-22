@@ -38,7 +38,7 @@ confirmation in FR-005 is about something concrete.
 | `mode` | `full` \| `refresh` | `refresh` invokes the tool's incremental path. `full` first removes `graphify-out/graph.json` — the one narrow, documented exception to never writing into the tool's directory — then invokes the same command; there is no `--full` flag (research R10) |
 | `confirmed` | boolean | MUST be true before a script runs. The script's contract requires the caller to assert this explicitly (research R8), so an unconfirmed build cannot occur by omission |
 | `file_count` | integer | Reported to the maintainer before confirmation, never after |
-| `coverage_notice` | fixed text | States that code is interpreted and prose is not, and that no exclusions are available (FR-013a, research R13) |
+| `coverage_notice` | fixed text | States that structure is extracted from code and documents, that no semantic relationships are inferred, and that no exclusions are available (FR-013a, research R16) |
 
 ### Run state (extension-owned)
 
@@ -66,7 +66,7 @@ state no script can ever reach.
 |---|---|---|
 | `built` | A graph was produced or replaced | 0 |
 | `current` | Refresh ran; the tool reported no topology change | 0 |
-| `nothing-to-examine` | The scope contained nothing the tool can read | 3 |
+| `nothing-to-examine` | The tool reported no readable files and produced no graph (research R17) | 3 |
 | `dependency-missing` | The tool does not resolve on `PATH` | 4 |
 | `dependency-too-old` | Below the floor, at or above the ceiling, or an unparseable version | 5 |
 | `already-running` | Another build holds the lock | 6 |
@@ -98,7 +98,7 @@ extension.
 | `delta` | added / changed / removed vs. previous | Refresh only (FR-011) |
 | `output_location` | fixed | `graphify-out/` |
 | `elapsed` | measured | Wall clock of the tool invocation |
-| `coverage` | fixed | Present on every completed build: code was interpreted; documents, papers, and images were not and require the maintainer's graphify skill pass (research R3); no exclusions were applied (research R13). FR-013a, SC-008 |
+| `coverage` | fixed | Present on every completed build: structure was extracted from code and documents alike (research R16); no semantic relationships were inferred, which requires the maintainer's graphify skill pass (research R3); no exclusions were applied (research R13). FR-013a, SC-008 |
 | `backup_path` | tool output | The dated backup directory, when the tool created one — the maintainer's only recovery path |
 
 ---

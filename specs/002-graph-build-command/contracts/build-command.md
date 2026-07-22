@@ -83,11 +83,16 @@ The order is normative. Each step's failure stops the command with the correspon
   reproduced as the graph carries them, as a breakdown, never summed into a single
   relationship count and never paraphrased (FR-012, SC-004, Principle XVIII).
 - **The coverage statement is unconditional on a completed build** (FR-013a, SC-008).
-  Every report for a `built` outcome states three things: code was interpreted; documents,
-  papers, and images were not, and the maintainer's own graphify skill performs that pass
-  (research R3); no exclusions were applied (research R13). Omitting any of them lets a
-  prose-heavy project read a partial graph as complete — which, for a Spec Kit project
-  whose most valuable content is Markdown, is the most likely misreading of all.
+  Every report for a `built` outcome states three things, precisely: structure was
+  extracted from code **and** documents (research R16 — a Markdown heading becomes an
+  entity with `EXTRACTED` provenance, exactly as a function does); no semantic
+  relationships were inferred, and the maintainer's own graphify skill performs that pass
+  (research R3); no exclusions were applied (research R13).
+
+  Precision matters more than reassurance here. Saying "documents were not read" is false
+  and self-defeating: a maintainer goes looking for their headings, finds them, concludes
+  the statement was wrong, and then trusts the graph for the semantic claims it cannot
+  make.
 - **The backup path is surfaced when the tool creates one.** It is the maintainer's only
   recovery path after a rebuild replaces a graph.
 - **Outcomes are distinguishable.** The nine `BuildOutcome` values produce nine different

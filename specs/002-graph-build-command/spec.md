@@ -39,12 +39,18 @@ for, and every other capability is an increment on top of it.
 command and confirm a graph is produced, a summary is reported, and the maintainer was
 asked before the build started. Delivers a queryable graph with no other feature present.
 
-**What this build covers**: the deterministic pass reads **code only**. Documents, papers,
-and images are interpreted by a separate model-assisted pass that belongs to the
-maintainer's own knowledge-graph tooling, and this command hands off to it rather than
-performing it. For a project whose most valuable content is prose — which describes most
-projects this extension targets — a build alone produces a partial graph, and the command
-must say so every time rather than let the maintainer infer completeness.
+**What this build covers**: the deterministic pass extracts **structure** — from code, and
+from documents too. A Markdown heading becomes an entity with directly-established
+provenance, the same as a function does. What the pass does **not** produce is the
+*semantic* layer: concepts spanning documents, and the relationships a model would infer
+between a requirement and the code implementing it. Those need a separate model-assisted
+pass that belongs to the maintainer's own knowledge-graph tooling, and this command hands
+off to it rather than performing it.
+
+The report must state this precisely rather than reassuringly. "Your documents were not
+read" would be false — their structure was. "Your documents were fully understood" would
+also be false. A maintainer told the first version goes looking for their headings, finds
+them, and then trusts the graph for semantic claims it cannot make.
 
 **Acceptance Scenarios**:
 
@@ -76,8 +82,9 @@ must say so every time rather than let the maintainer infer completeness.
    **Then** the outcome and the report are equivalent.
 8. **Given** a project containing both code and prose documents,
    **When** a build completes,
-   **Then** the report states that code was interpreted and that documents, papers, and
-   images were not, and names the separate pass that covers them.
+   **Then** the graph contains entities extracted from both, and the report states that
+   structure was extracted while no semantic relationships were inferred, naming the
+   separate pass that produces those.
 9. **Given** a completed build whose scope contained prose documents,
    **When** the report is rendered,
    **Then** the model-assisted pass is offered as an explicit next step, and declining it
@@ -235,9 +242,12 @@ step, and produces no output directory and no graph.
   every report, and MUST NOT collapse them into undifferentiated prose.
 - **FR-013**: A run that finds nothing to examine MUST be reported as a distinct outcome
   from a successful build and MUST NOT be reported as success.
-- **FR-013a**: Every report for a completed build MUST state what was interpreted and what
-  was not — specifically, that code was read and that documents, papers, and images require
-  the separate model-assisted pass — and MUST state that no exclusions were applied.
+- **FR-013a**: Every report for a completed build MUST state, precisely, what the run
+  produced and what it did not: that structure was extracted from both code and documents,
+  that no semantic relationships were inferred between documents or between documents and
+  code, and that the model-assisted pass is what produces those. It MUST also state that no
+  exclusions were applied. A statement that is merely reassuring, or that implies documents
+  were skipped entirely, does not satisfy this requirement.
 - **FR-013b**: When a completed build's scope contained documents the deterministic pass
   did not interpret, the command MUST offer the model-assisted handoff as an explicit next
   step, naming the command that performs it. The offer is declinable and MUST NOT run
@@ -311,7 +321,8 @@ not only observed passing.
   already running, an interrupted previous build, and a tool failure — 100% are reported
   as distinct from one another, with no two producing the same message.
 - **SC-009**: A person who has never seen this project can, from the command's output
-  alone, correctly state whether their documentation is in the graph. *(Falsifiable: ask
+  alone, correctly state what is in the graph and what is not — specifically, that their
+  documents' structure is present and that no inferred relationships are. *(Falsifiable: ask
   someone unfamiliar with the feature to read a build report and answer the question; a
   report that omits the coverage statement produces a wrong answer, and the wrong answer is
   always "yes, it is in there".)*
@@ -334,19 +345,16 @@ not only observed passing.
 - **Only a local project is in scope for this feature.** The underlying tool can also
   ingest remote repositories and merge several sources into one graph; those forms are
   deferred until the local case is proven.
-- **v1 builds a code graph, deliberately.** The deterministic pass is local, free, fast,
-  and requires no model; the pass that interprets prose is none of those. Shipping the
-  cheap half first is the choice being made here, and the cost is that a prose-heavy
-  project sees an incomplete picture until the maintainer runs the separate pass. The
-  command's obligation is to make that incompleteness impossible to miss (FR-013a), not to
-  hide it.
+- **v1 ships the structural pass, deliberately.** It is local, free, fast, and requires no
+  model; the semantic pass is none of those. Shipping the cheap layer first is the choice
+  being made here, and the cost is that the graph carries only directly-established
+  relationships until the maintainer runs the separate pass.
 
-  This decision is sharper for a public plugin than it would be for a private tool. An
-  installer arrives expecting the graph the upstream tool advertises — code, docs, papers,
-  images — and gets the code half. That is acceptable only because the report says so
-  every time and the command offers the handoff (FR-013b); it would not be acceptable
-  silently. Interpreting prose is a separate feature, not a deferred obligation of this
-  one.
+  This decision is sharper for a public plugin than for a private tool. An installer
+  arrives expecting the graph the upstream tool advertises and gets its deterministic
+  layer. That is acceptable because the report says exactly which layer, every time, and
+  the command offers the handoff (FR-013b) — and unacceptable silently. Producing the
+  semantic layer is a separate feature, not a deferred obligation of this one.
 - **Exclusions are not available in v1.** The underlying tool exposes no exclusion option,
   so scope is controlled by the root alone.
 - **The output location is the one the external tool uses by default.** The extension does

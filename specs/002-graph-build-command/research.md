@@ -373,6 +373,80 @@ build cannot generate on its own (quickstart Scenario 12).
 
 ---
 
+## R16: Markdown is extracted structurally — the deterministic pass is not code-only
+
+**Decision**: Stop describing the deterministic pass as "code only". It reads **code and
+document structure**; what it does not do is the *semantic* pass.
+
+**Evidence**: A directory containing one `README.md` and no code at all:
+
+```text
+$ graphify update .
+[graphify watch] Rebuilt: 2 nodes, 1 edges, 1 communities
+```
+
+The nodes:
+
+```json
+[
+ {"label": "README.md", "file_type": "document", "source_file": "README.md",
+  "_origin": "ast", "id": "readme", "community": 0},
+ {"label": "just prose", "file_type": "document", "source_file": "README.md",
+  "_origin": "ast", "id": "readme_just_prose", "community": 0}
+]
+```
+
+The link between them carries `"confidence": "EXTRACTED"`. The heading became a node, and
+`_origin` is `ast` — the document was parsed structurally, not interpreted.
+
+**What this corrects**: the spec, the plan, and the critique's P2 finding all described the
+deterministic pass as reading code and ignoring prose, and concluded that a Spec Kit
+project's Markdown would be absent from the graph. That is wrong. Document structure —
+headings and their containment — does enter the graph, with `EXTRACTED` provenance.
+
+**What remains true**: the *semantic* layer does not. Cross-document concepts, the
+relationships a model would infer between a requirement and the code that implements it,
+and everything carrying `INFERRED` or `AMBIGUOUS` provenance still require the
+model-assisted pass. The tool's own closing line says so on every run: *"For doc/paper/image
+changes run `/graphify --update` in your AI assistant."*
+
+**Consequence**: the coverage statement must be precise rather than reassuring. "Documents
+were not interpreted" is false; "document structure was extracted, but no semantic
+relationships were inferred between documents or between documents and code" is true. The
+distinction matters because a maintainer who reads the false version would go looking for
+their headings and find them, and then trust the graph for the semantic claims it cannot
+make.
+
+**How this was found**: while building the `nothing-to-examine` fixture. The fixture
+contained a single `README.md`, and the build that was supposed to find nothing produced a
+graph. The test was wrong, and it was wrong because the spec was wrong.
+
+---
+
+## R17: An empty scope is reported by the tool, not inferred from a file count
+
+**Decision**: Classify `nothing-to-examine` from graphify's own output and the absence of
+`graph.json` — never from counting files.
+
+**Evidence**: A directory containing only `.gitkeep`:
+
+```text
+$ graphify update .
+Nothing to update or rebuild failed — check output above.
+Re-extracting code files in . (no LLM needed)...
+[graphify watch] No code files found - nothing to rebuild.
+```
+
+No `graph.json` was produced.
+
+**Rationale**: A file count cannot distinguish "no files" from "files the tool does not
+read", and R16 shows the set of files the tool reads is wider than expected. Counting would
+have reported `nothing-to-examine` for a directory of Markdown that graphify happily
+extracts. The tool already answers the question precisely; asking it is more reliable than
+guessing from the filesystem.
+
+---
+
 ## Resolved unknowns
 
 | Unknown from Technical Context | Resolved by |
@@ -391,6 +465,8 @@ build cannot generate on its own (quickstart Scenario 12).
 | Whether exclusions are honoured | R13 |
 | What version range is safe to depend on | R14 |
 | Whether graph size threatens the counting pass | R15 |
+| What the deterministic pass actually reads | R16 |
+| How an empty scope is detected | R17 |
 
 No `NEEDS CLARIFICATION` items remain.
 

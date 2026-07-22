@@ -1,0 +1,200 @@
+{
+ "directed": true,
+ "multigraph": false,
+ "graph": {},
+ "nodes": [
+  {
+   "label": "concept_0",
+   "file_type": "code",
+   "source_file": "src/f0.py",
+   "source_location": "L1",
+   "_origin": "llm",
+   "id": "n0",
+   "community": 0,
+   "norm_label": "concept_0"
+  },
+  {
+   "label": "concept_1",
+   "file_type": "document",
+   "source_file": "docs/d1.md",
+   "source_location": "L2",
+   "_origin": "ast",
+   "id": "n1",
+   "community": 1,
+   "norm_label": "concept_1"
+  },
+  {
+   "label": "concept_2",
+   "file_type": "code",
+   "source_file": "src/f2.py",
+   "source_location": "L3",
+   "_origin": "llm",
+   "id": "n2",
+   "community": 2,
+   "norm_label": "concept_2"
+  },
+  {
+   "label": "concept_3",
+   "file_type": "document",
+   "source_file": "docs/d3.md",
+   "source_location": "L4",
+   "_origin": "ast",
+   "id": "n3",
+   "community": 0,
+   "norm_label": "concept_3"
+  },
+  {
+   "label": "concept_4",
+   "file_type": "code",
+   "source_file": "src/f4.py",
+   "source_location": "L5",
+   "_origin": "llm",
+   "id": "n4",
+   "community": 1,
+   "norm_label": "concept_4"
+  },
+  {
+   "label": "concept_5",
+   "file_type": "document",
+   "source_file": "docs/d5.md",
+   "source_location": "L6",
+   "_origin": "ast",
+   "id": "n5",
+   "community": 2,
+   "norm_label": "concept_5"
+  },
+  {
+   "label": "concept_6",
+   "file_type": "code",
+   "source_file": "src/f6.py",
+   "source_location": "L7",
+   "_origin": "llm",
+   "id": "n6",
+   "community": 0,
+   "norm_label": "concept_6"
+  },
+  {
+   "label": "concept_7",
+   "file_type": "document",
+   "source_file": "docs/d7.md",
+   "source_location": "L8",
+   "_origin": "ast",
+   "id": "n7",
+   "community": 1,
+   "norm_label": "concept_7"
+  }
+ ],
+ "links": [
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n0",
+   "target": "n1",
+   "source_file": "docs/d0.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n1",
+   "target": "n4",
+   "source_file": "docs/d1.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n2",
+   "target": "n7",
+   "source_file": "docs/d2.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n3",
+   "target": "n2",
+   "source_file": "docs/d3.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n4",
+   "target": "n5",
+   "source_file": "docs/d4.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "EXTRACTED",
+   "confidence_score": 1.0,
+   "source": "n5",
+   "target": "n0",
+   "source_file": "docs/d5.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "INFERRED",
+   "confidence_score": 0.5,
+   "source": "n6",
+   "target": "n3",
+   "source_file": "docs/d6.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "INFERRED",
+   "confidence_score": 0.6,
+   "source": "n7",
+   "target": "n6",
+   "source_file": "docs/d7.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "INFERRED",
+   "confidence_score": 0.7,
+   "source": "n0",
+   "target": "n1",
+   "source_file": "docs/d0.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "AMBIGUOUS",
+   "confidence_score": 0.8,
+   "source": "n1",
+   "target": "n4",
+   "source_file": "docs/d1.md",
+   "source_location": "L1",
+   "weight": 1.0
+  },
+  {
+   "relation": "relates_to",
+   "confidence": "AMBIGUOUS",
+   "confidence_score": 0.4,
+   "source": "n2",
+   "target": "n7",
+   "source_file": "docs/d2.md",
+   "source_location": "L1",
+   "weight": 1.0
+  }
+ ],
+ "hyperedges": []
+}

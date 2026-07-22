@@ -11,10 +11,11 @@ established. This extension puts that graph in front of the Spec Kit commands, s
 model being written against is one you can inspect rather than one the agent inferred
 on the fly and forgot.
 
-> **Status:** the constitution and repository governance are in place; the extension
-> package itself is under construction. See
-> [`.specify/memory/constitution.md`](.specify/memory/constitution.md) for the rules
-> it is being built against.
+> **Status:** the extension package lives in [`extension/`](extension/) and its first
+> command, `speckit.llm-wiki-graphify.build`, is implemented and tested. See
+> [`extension/README.md`](extension/README.md) for install and usage, and
+> [`.specify/memory/constitution.md`](.specify/memory/constitution.md) for the rules it is
+> built against.
 
 ## What it is, and what it is not
 
@@ -79,6 +80,7 @@ validation scripts all still apply to the extension being built here.
 | [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | The non-negotiable rules. Source of truth. |
 | [`docs/PACKAGING.md`](docs/PACKAGING.md) | How an extension reaches a user, per distribution form. |
 | [`docs/HOOKS.md`](docs/HOOKS.md) | The two hook layers, and how not to confuse them. |
+| [`extension/`](extension/) | The shipped `llm-wiki-graphify` package. |
 | [`template/`](template/) | The inherited `trace` reference extension — a working example, and what keeps the install-test honest. |
 | [`.claude/skills/sdd-master/`](.claude/skills/sdd-master/) | The skill that decides how much process a change warrants. Not shipped with the extension. |
 
@@ -89,6 +91,7 @@ validation scripts all still apply to the extension being built here.
 | `scripts/validate-extension.py` | Manifest shape, command namespacing, hook events and priorities, script parity |
 | `scripts/check-placeholders.sh` | No `CUSTOMIZE:` markers survive into a shipped package |
 | `scripts/install-test.sh` | The install → list → info → remove cycle |
+| `scripts/test-graph-build.sh` / `.ps1` | That every build-command failure path actually fails, for the right reason |
 
 ```bash
 python scripts/validate-extension.py path/to/extension
