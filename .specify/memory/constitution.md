@@ -12,7 +12,7 @@ Added sections:
 - Continuous Integration Gates
 
 Repository state established this amendment:
-- git initialized on `main`; remote https://github.com/jonyfs/spec-kit-extension-template (public)
+- git initialized on `main`; remote https://github.com/jonyfs/spec-kit-extension-llm-wiki-graphify (public)
 - .github/workflows/ci.yml with four jobs: lint, validate, placeholders, install-test
 - .github/pull_request_template.md carrying the per-principle checklist
 - scripts/validate-extension.py, scripts/check-placeholders.sh, scripts/install-test.sh
@@ -400,7 +400,7 @@ exposure with no return.
 
 ### XIV. Trunk-Based Delivery Through Pull Requests
 
-This project lives at `https://github.com/jonyfs/spec-kit-extension-template`.
+This project lives at `https://github.com/jonyfs/spec-kit-extension-llm-wiki-graphify`.
 `main` is the trunk and is never committed to directly. Every change — feature,
 fix, or documentation — lands through a pull request that targets `main` from a
 short-lived branch, and every pull request MUST have all CI gates green before
