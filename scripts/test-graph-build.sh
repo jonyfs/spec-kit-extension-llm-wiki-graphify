@@ -283,6 +283,16 @@ printf 'def s():\n    return 1\n' >"${WORK}/rooted/sub/src/s.py"
 assert_present "graph lands under the scope root" "${WORK}/rooted/sub/graphify-out/graph.json"
 assert_absent "no stray output beside the scope root" "${WORK}/rooted/graphify-out"
 
+# The lock must be RELEASED, not merely acquired. The concurrency assertions above
+# create their own lock, so they pass whether or not the script ever releases one —
+# an assertion that holds equally when the code is right and when it is wrong.
+# This is the case that catches it: with a non-default --path, a relative lock path
+# resolves against the wrong directory after the script enters the scope root.
+assert_absent "no lock remains after a build with a non-default scope root" \
+    "${WORK}/rooted/.specify/extensions/llm-wiki-graphify/build.lock"
+assert_absent "no lock remains inside the scope root either" \
+    "${WORK}/rooted/sub/.specify/extensions/llm-wiki-graphify/build.lock"
+
 printf '\nProvenance breakdown\n'
 
 mixed_out="$(cd "${FIXTURES}/graph-build-mixed" && bash "$SCRIPT" status 2>/dev/null)"

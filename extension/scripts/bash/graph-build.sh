@@ -42,8 +42,12 @@ readonly EXIT_FAILED=8
 readonly DEFAULT_MIN_VERSION="0.9.9"
 readonly DEFAULT_MAX_VERSION="0.10.0"
 readonly OUT_DIR="graphify-out"
-readonly EXT_DIR=".specify/extensions/llm-wiki-graphify"
-readonly LOCK_DIR="${EXT_DIR}/build.lock"
+# Resolved to absolute paths in main(), BEFORE any cd. mode_build enters the scope
+# root, and a relative lock path would then resolve against the wrong directory —
+# the lock would be acquired in one place and released in another, which is to say
+# never released at all.
+EXT_DIR=".specify/extensions/llm-wiki-graphify"
+LOCK_DIR="${EXT_DIR}/build.lock"
 
 MODE=""
 ARG_PATH="."
@@ -529,6 +533,10 @@ mode_build() {
 
 main() {
     parse_args "$@"
+
+    # Absolute before anything can change directory.
+    EXT_DIR="$(pwd -P)/.specify/extensions/llm-wiki-graphify"
+    LOCK_DIR="${EXT_DIR}/build.lock"
 
     case "$MODE" in
         check) mode_check ;;

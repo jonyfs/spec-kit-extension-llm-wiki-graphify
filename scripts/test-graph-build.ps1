@@ -200,6 +200,15 @@ $null = Invoke-Target -Arguments @('build', '-Confirmed', '-Path', 'sub') -Worki
 Assert-Present 'graph lands under the scope root' (Join-Path $rooted 'sub/graphify-out/graph.json')
 Assert-Absent 'no stray output beside the scope root' (Join-Path $rooted 'graphify-out')
 
+# The lock must be RELEASED, not merely acquired. The concurrency assertions create
+# their own lock, so they pass whether or not the script releases one. This is the
+# case that catches a lock path resolved against the wrong directory — the defect
+# the bash variant actually had, and which parity claims had been blind to.
+Assert-Absent 'no lock remains after a build with a non-default scope root' `
+    (Join-Path $rooted '.specify/extensions/llm-wiki-graphify/build.lock')
+Assert-Absent 'no lock remains inside the scope root either' `
+    (Join-Path $rooted 'sub/.specify/extensions/llm-wiki-graphify/build.lock')
+
 Write-Host "`nProvenance breakdown"
 
 $mixed = Invoke-Target -Arguments @('status') -WorkingDirectory (Join-Path $Fixtures 'graph-build-mixed')
