@@ -135,7 +135,7 @@ dependency and its install step, and produces no output directory.
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 - [X] T039 [P] Port every mode to `extension/scripts/powershell/graph-build.ps1` at behavioural parity per `contracts/build-script.md`: identical `outcome` values, identical exit codes, identical stdout key set. Use an atomically-created directory for the lock, which is atomic on Windows filesystems too
-- [ ] T040 Add a Windows job to `.github/workflows/ci.yml` running `scripts/test-graph-build.sh`'s PowerShell equivalent against the same fixtures. **Parity claimed without a Windows run is parity assumed** — Principle XV forbids trusting a check nobody has watched, and no Windows machine is available locally, so CI is the only honest path to verifying it
+- [X] T040 Add a Windows job to `.github/workflows/ci.yml` running `scripts/test-graph-build.sh`'s PowerShell equivalent against the same fixtures. **Parity claimed without a Windows run is parity assumed** — Principle XV forbids trusting a check nobody has watched, and no Windows machine is available locally, so CI is the only honest path to verifying it
 - [X] T041 [P] Write `extension/README.md` leading with the command, and documenting: the supported graphify range `>=0.9.9,<0.10.0` and why the ceiling exists, that the deterministic build is local-only while the model-assisted pass sends content to whichever backend the maintainer's graphify uses, that v1 builds a code graph, and that exclusions are unavailable
 - [X] T042 [P] Add the `graph-build` job to `.github/workflows/ci.yml` running `scripts/test-graph-build.sh`, with graphify installed at a pinned version so the suite tests the version the contracts were verified against
 - [ ] T043 Run the Principle VII install cycle from quickstart.md against a real Spec Kit project: `add --dev` → `list` → `info` → execute the command and the hook at least once each → `remove`. An install that was never exercised proves only that the YAML parses
@@ -199,6 +199,28 @@ strangers install.
 alone at a keyboard — one needs Windows CI, the other needs another person. Scheduling them
 as "polish" is deliberate, not dismissive: they are the two claims most likely to be
 quietly assumed rather than checked.
+
+## Completion notes
+
+Recorded honestly rather than by ticking everything that looked adjacent.
+
+- **T040** — the Windows CI job and `scripts/test-graph-build.ps1` are written and the
+  suite passes (24/24) on PowerShell Core under macOS. That is **not** parity on Windows:
+  path separators, `Get-Process`, and filesystem semantics all differ. The claim is settled
+  when the CI job runs, not before.
+- **T043** — `scripts/install-test.sh` passes for both packages: add → list → info →
+  remove. Principle VII also requires every declared command and hook to be executed at
+  least once inside an installed project, and that has not been done. The task stays open
+  until it is.
+- **T045 / T046** — open by nature. SC-003 needs a project large enough for the ratio to
+  mean something; SC-009 needs a person who has never seen this feature. Neither can be
+  closed by the author at a keyboard, which is exactly why they were scheduled rather than
+  assumed.
+
+Two tasks changed shape during implementation, because the research they rested on turned
+out to be incomplete — see `research.md` R16 and R17. T015's outcome classification now
+reads graphify's own output instead of counting files, and T021's coverage statement says
+that document *structure* is extracted rather than claiming documents were skipped.
 
 ## Task Count
 
