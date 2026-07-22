@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `sdd-master` skill (`.claude/skills/sdd-master/`) — proactive expertise on
+  spec-driven development and Spec Kit. A router holding the four-band effort
+  classification and signal table, plus four references loaded on demand and split
+  by source of truth: `workflow.md`, `craft.md`, `recovery.md`, `ecosystem.md`.
+  Its guidance is deliberately proportionate — the documented failure of
+  spec-driven development is applying it uniformly, not skipping it. Evaluated
+  against a no-skill baseline on three behavioral cases (17 of 17 assertions) and
+  a 20-query trigger set.
+
 - Project constitution (`.specify/memory/constitution.md`) defining thirteen
   principles for authoring Spec Kit extensions.
 - `docs/HOOKS.md` — reference for both hook layers: Spec Kit lifecycle hooks

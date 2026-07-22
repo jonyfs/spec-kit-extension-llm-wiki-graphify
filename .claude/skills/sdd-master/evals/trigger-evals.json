@@ -1,0 +1,82 @@
+[
+  {
+    "query": "we're adding multi-tenant support to our billing service — tenant isolation, per-tenant rate limits, an admin impersonation view. my lead wants something written down before i touch code. where do i even start",
+    "should_trigger": true
+  },
+  {
+    "query": "i ran specify then went straight to tasks and it complained about a missing plan. then i hand-edited spec.md and now tasks.md has 40 items that don't match. how do i get out of this without nuking everything",
+    "should_trigger": true
+  },
+  {
+    "query": "does the 'we always use postgres, never mysql' rule go in the constitution or in the spec for the feature i'm working on? i keep putting things in the wrong place",
+    "should_trigger": true
+  },
+  {
+    "query": "my PM wrote acceptance criteria that say the dashboard 'should feel snappy and be intuitive to navigate'. how do i turn that into something i can actually verify",
+    "should_trigger": true
+  },
+  {
+    "query": "honest question — is all this spec writing actually making us ship faster or are we just generating markdown? we've been doing it for two sprints and i can't tell",
+    "should_trigger": true
+  },
+  {
+    "query": "i keep writing specs that are either way too big or so small they're pointless. is there a rule of thumb for how much should go in one",
+    "should_trigger": true
+  },
+  {
+    "query": "something ran automatically after i generated tasks and now a command is refusing to execute and i have no idea what changed. there's a superpowers-handoff.json file i didn't create",
+    "should_trigger": true
+  },
+  {
+    "query": "we're evaluating Kiro vs spec-kit vs just putting everything in AGENTS.md for a new greenfield service. team of 4. what actually differs between them",
+    "should_trigger": true
+  },
+  {
+    "query": "need to refactor the checkout flow to support split payments across two cards. touches the payment gateway adapter, the order state machine, and the receipt emails. not sure how much planning this warrants",
+    "should_trigger": true
+  },
+  {
+    "query": "write an OpenAPI 3.1 specification for our /v2/invoices endpoints — GET list with cursor pagination, POST create, GET by id. we already have the handlers, i just need the schema file",
+    "should_trigger": false
+  },
+  {
+    "query": "here's the spec sheet for the Raspberry Pi CM5 — can you tell me if the 8GB variant has enough PCIe lanes for two NVMe drives",
+    "should_trigger": false
+  },
+  {
+    "query": "can you add a task to my TODO.md — 'call the landlord about the radiator' under the personal section",
+    "should_trigger": false
+  },
+  {
+    "query": "the copyright year in src/components/Footer.tsx says 2024, change it to 2026",
+    "should_trigger": false
+  },
+  {
+    "query": "our JWT validation is rejecting tokens that should be valid. i think the clock skew tolerance is wrong in auth/verify.go around line 80. can you look",
+    "should_trigger": false
+  },
+  {
+    "query": "what does the RFC 7519 spec say about the 'aud' claim when there are multiple audiences — is a string array required or optional",
+    "should_trigger": false
+  },
+  {
+    "query": "write unit tests for the CartTotal function in src/cart/total.ts, it takes line items and a discount code and returns cents",
+    "should_trigger": false
+  },
+  {
+    "query": "explain what a git worktree actually is and how it's different from just cloning the repo twice",
+    "should_trigger": false
+  },
+  {
+    "query": "our CI spec for the deploy job is failing on the lint step — yamllint says wrong indentation in .github/workflows/deploy.yml line 34",
+    "should_trigger": false
+  },
+  {
+    "query": "i need to document the requirements for the new reporting module before the team meeting on thursday, but honestly i don't know what half of them are yet — the stakeholders keep changing their mind about what 'active user' means",
+    "should_trigger": true
+  },
+  {
+    "query": "convert this product requirements doc from Confluence into a markdown file in docs/ — just reformat it, don't change the content",
+    "should_trigger": false
+  }
+]

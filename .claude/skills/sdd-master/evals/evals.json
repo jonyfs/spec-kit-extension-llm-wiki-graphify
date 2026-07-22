@@ -3,23 +3,46 @@
   "evals": [
     {
       "id": 0,
-      "name": "route-large-feature-to-full-flow",
-      "prompt": "we're adding multi-tenant support to our billing service. right now every table just has a customer_id and the API assumes one org per account. we need real tenant isolation, per-tenant rate limits, and an admin view that can impersonate a tenant for support. i have no idea where to start and my lead wants something written down before i touch code. how should i approach this?",
-      "expected_output": "Routes to the full Spec Kit flow. Names the actual commands in order (constitution check, /speckit.specify, /speckit.clarify, /speckit.plan, /speckit.tasks, /speckit.implement), explains what artifact each produces and why clarify matters before plan for a feature this ambiguous. Does not just start writing code or hand back generic architecture advice.",
+      "name": "resist-ceremony-on-trivial-change",
+      "prompt": "the footer on our marketing site says Copyright 2024, needs to say 2026. also the link to the careers page 404s, should point to /careers not /career. can you sort that out",
+      "expected_output": "Recognizes this is far below the threshold where spec-driven ceremony pays off. Makes the two fixes (or explains exactly what to change). Produces NO specification, plan, or task artifact and does not walk the user through a multi-step workflow. If it mentions the methodology at all, it is one sentence explaining why the ceremony is not warranted.",
+      "assertions": [
+        "Does not create or propose creating a spec.md, plan.md, or tasks.md",
+        "Does not enumerate a multi-step spec-driven workflow for the user to follow",
+        "Addresses both requested changes: the year and the careers link path",
+        "Any mention of spec-driven development is at most one sentence of justification, not a pitch",
+        "Does not offer the full workflow as an alternative the user could choose"
+      ],
       "files": []
     },
     {
       "id": 1,
-      "name": "resist-ceremony-on-trivial-change",
-      "prompt": "the footer on our marketing site says Copyright 2024, needs to say 2026. also the link to the careers page 404s, should point to /careers not /career. can you sort that out",
-      "expected_output": "Recognizes this is far below the threshold where SDD pays off. Does NOT generate a spec.md, plan.md, or tasks.md and does not walk the user through the Spec Kit workflow. Just fixes it (or explains the fix). If it mentions SDD at all it is to explain briefly why the ceremony is not warranted here.",
+      "name": "route-large-feature-to-full-flow",
+      "prompt": "we're adding multi-tenant support to our billing service. right now every table just has a customer_id and the API assumes one org per account. we need real tenant isolation, per-tenant rate limits, and an admin view that can impersonate a tenant for support. i have no idea where to start and my lead wants something written down before i touch code. how should i approach this?",
+      "expected_output": "Routes to the full workflow. Names the steps in dependency order and says which artifact each produces. States the specific signal that decided the classification (touches permissions and data isolation; multiple subsystems; user cannot state acceptance conditions; user explicitly needs something written down). Does not immediately start writing code or hand back generic architecture advice.",
+      "assertions": [
+        "Recommends the full spec-driven workflow rather than starting implementation",
+        "Names workflow steps in an order that respects their prerequisites (specification before plan, plan before tasks, tasks before implementation)",
+        "States which artifact each named step produces",
+        "Names at least one concrete signal that justified the full band, drawn from the request itself",
+        "Gives exactly one recommendation rather than a menu of options",
+        "The actionable recommendation is present in the first response without a required follow-up"
+      ],
       "files": []
     },
     {
       "id": 2,
       "name": "diagnose-broken-mid-flow-state",
-      "prompt": "ok i'm confused. i ran /speckit.specify then went straight to /speckit.tasks and it complained. then i edited spec.md by hand to add two new requirements but plan.md still describes the old design. tasks.md has like 40 items half of which don't make sense anymore. what's the actual right way out of this without throwing everything away",
-      "expected_output": "Correctly diagnoses two separate problems: (a) tasks requires plan.md to exist first, hence the complaint; (b) the hand-edit to spec.md created drift so plan.md and tasks.md are now stale relative to spec.md. Prescribes a concrete recovery order (re-run plan after the spec change, then regenerate tasks) and names /speckit.analyze as the cross-artifact consistency check. Does not tell the user to start over from scratch.",
+      "prompt": "ok i'm confused. i ran the specify step then went straight to generating tasks and it complained. then i edited spec.md by hand to add two new requirements but plan.md still describes the old design. tasks.md has like 40 items half of which don't make sense anymore. what's the actual right way out of this without throwing everything away",
+      "expected_output": "Correctly separates two distinct problems: (a) generating tasks requires the plan to exist first, which is why it complained; (b) the hand-edit to the specification created drift, so the plan and task list are now stale relative to it. Prescribes a concrete recovery order (regenerate the plan from the updated spec, then regenerate tasks) and names a cross-artifact consistency check. Does not tell the user to start over.",
+      "assertions": [
+        "Identifies the prerequisite failure as a separate problem from the drift",
+        "Explains that the task step refused because the plan artifact did not exist",
+        "Identifies which artifacts are stale relative to the hand-edited specification",
+        "Prescribes an explicit regeneration order rather than a vague suggestion to re-sync",
+        "Does not recommend discarding existing work or starting the feature over",
+        "Diagnoses the cause before prescribing the repair"
+      ],
       "files": []
     }
   ]
