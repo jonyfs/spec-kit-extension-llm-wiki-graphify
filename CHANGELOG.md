@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pull request template carries checklist rows for Principles XV–XVIII, and the
   Principle III row is rescoped.
 - `.gitignore` excludes `graphify-out/` per Principle XVI.
+- `README.md` rewritten to describe the `llm-wiki-graphify` extension — its scope,
+  its graphify dependency, and the four rules that shape it — rather than a
+  general-purpose extension template.
 
 ### Added
 

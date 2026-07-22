@@ -1,119 +1,115 @@
-# Spec Kit Extension Template
+# llm-wiki-graphify
 
-A template for building [GitHub Spec Kit](https://github.com/github/spec-kit)
-extensions — with the rules, reference docs, and CI gates that keep a published
-extension from breaking in someone else's project.
+A [GitHub Spec Kit](https://github.com/github/spec-kit) extension that bridges the
+spec-driven lifecycle to [graphify](https://github.com/safishamsi/graphify) — the
+knowledge-graph tool popularized as "LLM Wiki".
 
-## What an extension is
+The point is simple: a spec, a plan, and a task list are all written against some
+mental model of the project. Graphify builds that model mechanically — a navigable
+graph of code, docs, and notes, with every relationship labelled by how it was
+established. This extension puts that graph in front of the Spec Kit commands, so the
+model being written against is one you can inspect rather than one the agent inferred
+on the fly and forgot.
 
-A Spec Kit extension is a package that adds namespaced slash commands and
-lifecycle hooks to any Spec Kit project. It installs with:
+> **Status:** the constitution and repository governance are in place; the extension
+> package itself is under construction. See
+> [`.specify/memory/constitution.md`](.specify/memory/constitution.md) for the rules
+> it is being built against.
 
-```bash
-specify extension add --dev /path/to/my-extension
-```
+## What it is, and what it is not
 
-An extension is a manifest plus its referenced files:
+This extension is a **bridge**. It invokes the graphify installation you already
+have. It does not reimplement graph construction, clustering, or wiki generation, and
+it does not vendor graphify's source — that tool has its own release cadence, and a
+copy would disagree with the graph you already trust within a month.
 
-```text
-my-extension/
-├── extension.yml            # the contract the CLI validates
-├── README.md
-├── LICENSE
-├── CHANGELOG.md
-├── commands/                # one Markdown file per slash command
-├── scripts/
-│   ├── bash/                # both variants required — the CLI picks by platform
-│   └── powershell/
-└── config-template.yml
-```
+Four rules shape everything it does. They are constitutional, not stylistic:
 
-## Getting started
+- **Graphify is a dependency, checked explicitly.** If graphify is not installed, a
+  command stops and says so. There is no silent fallback and no stub graph presented
+  as a real one.
+- **Derived artifacts are never committed and never hand-edited.** All of
+  `graphify-out/` is git-ignored. A wrong edge is fixed in the source and the graph is
+  rebuilt — correcting the output by hand produces a graph that no longer matches what
+  a rebuild would produce.
+- **Provenance survives every hop.** Graphify labels each relationship `EXTRACTED`
+  (read from the source), `INFERRED` (model-produced, with a confidence), or
+  `AMBIGUOUS` (needs review). Those labels are carried through unchanged. An
+  `INFERRED` edge may raise a `[NEEDS CLARIFICATION]` marker; it may not become a
+  requirement.
+- **The graph serves the lifecycle, never replaces it.** No core command is bypassed
+  or gated. `spec.md`, `plan.md`, and `tasks.md` belong to the core commands and to
+  you. Graph builds are expensive and touch every file, so nothing builds unprompted.
 
-1. Read [`.specify/memory/constitution.md`](.specify/memory/constitution.md).
-   It is the source of truth for every rule this repository enforces.
-2. Read [`docs/PACKAGING.md`](docs/PACKAGING.md) to understand how your extension
-   will actually reach users.
-3. Read [`docs/HOOKS.md`](docs/HOOKS.md) before declaring any hook.
-4. Copy [`template/`](template/) and adapt it. It is a working extension, not a
-   skeleton — see below.
-5. Prove it:
+## Requirements
 
-```bash
-python scripts/validate-extension.py path/to/my-extension
-bash scripts/install-test.sh
-```
+- A Spec Kit project (`specify` CLI).
+- [graphify](https://github.com/safishamsi/graphify), installed and on `PATH`, or the
+  equivalent agent skill. The supported invocations are pinned to a stated graphify
+  version and verified against it rather than recalled.
 
-## The reference extension
+## Scope
 
-[`template/`](template/) holds `trace`, a small read-only extension that checks a
-feature's artifacts are mechanically consistent — a user story with no tagged tasks, a
-task citing a requirement the spec never defines, duplicate IDs, surviving
-`[NEEDS CLARIFICATION]` markers.
-
-It exists to be copied. Every rule this repository enforces is visible in it working
-rather than described: namespaced commands, a hook that is `optional: true` with a real
-prompt, bash and PowerShell scripts at parity, config that tolerates being absent, and
-no placeholder markers anywhere. Start from it rather than from a blank directory.
-
-It is also what keeps `scripts/install-test.sh` honest. Before it existed the script had
-nothing to install and exited green having tested nothing.
-
-## The sdd-master skill
-
-[`.claude/skills/sdd-master/`](.claude/skills/sdd-master/) is a Claude Code skill that
-decides how much process a piece of work warrants and routes accordingly. It is not part
-of the extension template — it is how this repository is built — but it is included
-because the judgment it encodes applies to any spec-driven project.
-
-Its evaluation record is in `specs/001-sdd-master-skill/`, including the round where the
-evaluation disproved one of the spec's own success criteria and the criterion was
-rewritten rather than quietly dropped.
-
-## Documentation
-
-| Document | What it answers |
+| Field | Value |
 |---|---|
-| [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | What are the non-negotiable rules? |
-| [`docs/PACKAGING.md`](docs/PACKAGING.md) | How does an extension reach a user, and what must the package look like for each path? |
-| [`docs/HOOKS.md`](docs/HOOKS.md) | What are the two hook layers, and how do I avoid confusing them? |
+| `extension.id` | `llm-wiki-graphify` |
+| Command namespace | `speckit.llm-wiki-graphify.*` |
+| Owned directory | `.specify/extensions/llm-wiki-graphify/` |
+| Derived output | `graphify-out/` — owned by graphify, git-ignored |
 
-## The rules, in brief
+**In scope:** building and incrementally updating a project graph; querying it
+(`query`, `path`, `explain`) and surfacing the result as context for a Spec Kit
+command; exposing the generated wiki and `GRAPH_REPORT.md` to the agent; opt-in
+lifecycle hooks that offer these at the moments they help.
 
-The constitution defines thirteen principles. The ones that most often bite:
+**Out of scope** without a constitutional amendment: graph construction not delegated
+to graphify, any persistent graph store inside `.specify/`, embeddings or a vector
+database, any write to `spec.md` / `plan.md` / `tasks.md`, and any automatic graph
+build.
 
-- **Commands are namespaced.** `speckit.{extension-id}.{command}`, and the middle
-  segment must equal your `extension.id`. Command registration is a flat namespace
-  across every installed extension, so a collision silently overwrites someone's
-  working workflow.
-- **Hooks are opt-in.** `optional` defaults to `true`. Omitting it does not make a
-  hook mandatory — and an auto-executing hook fires inside someone else's project,
-  on someone else's branch.
-- **Scripts come in pairs.** Ship `bash` without `powershell` and the extension
-  simply does not work for half its users.
-- **`--dev` passing is not a release.** It proves the working tree is valid. It does
-  not prove the ZIP has the manifest at the right depth or that the release URL
-  resolves. Install the published artifact before submitting a catalog entry.
+## Repository layout
+
+This repository was forked from
+[`spec-kit-extension-template`](https://github.com/jonyfs/spec-kit-extension-template)
+and keeps its engineering discipline: the constitution, the CI gates, and the
+validation scripts all still apply to the extension being built here.
+
+| Path | What it is |
+|---|---|
+| [`.specify/memory/constitution.md`](.specify/memory/constitution.md) | The non-negotiable rules. Source of truth. |
+| [`docs/PACKAGING.md`](docs/PACKAGING.md) | How an extension reaches a user, per distribution form. |
+| [`docs/HOOKS.md`](docs/HOOKS.md) | The two hook layers, and how not to confuse them. |
+| [`template/`](template/) | The inherited `trace` reference extension — a working example, and what keeps the install-test honest. |
+| [`.claude/skills/sdd-master/`](.claude/skills/sdd-master/) | The skill that decides how much process a change warrants. Not shipped with the extension. |
 
 ## Validation tooling
 
 | Script | Enforces |
 |---|---|
 | `scripts/validate-extension.py` | Manifest shape, command namespacing, hook events and priorities, script parity |
-| `scripts/check-placeholders.sh` | No `CUSTOMIZE:` markers survive into a package |
+| `scripts/check-placeholders.sh` | No `CUSTOMIZE:` markers survive into a shipped package |
 | `scripts/install-test.sh` | The install → list → info → remove cycle |
+
+```bash
+python scripts/validate-extension.py path/to/extension
+bash scripts/install-test.sh
+```
 
 All three run in CI on every pull request.
 
 ## Contributing
 
-Work happens on feature branches and lands on `main` through a pull request. CI
-must be green before merge. See the constitution's "Development Workflow & Quality
-Gates" section for the full sequence.
+`main` is the trunk and is never committed to directly. Work happens on short-lived
+branches and lands through a pull request with every CI gate green. The pull request
+template carries the constitution checklist — a box ticked without the corresponding
+check having been run is worse than an unchecked box.
+
+See the constitution's "Development Workflow & Quality Gates" section for the full
+sequence.
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
 
-Spec Kit is a project of GitHub, Inc. This template is not affiliated with or
-endorsed by GitHub, Inc.
+Spec Kit is a project of GitHub, Inc. Graphify is a project of its own authors. This
+extension is not affiliated with or endorsed by either.
