@@ -40,7 +40,9 @@ cd test-project
 failures=0
 
 for package_dir in "${packages[@]}"; do
-  ext_id="$(grep -E '^\s+id:' "$package_dir/extension.yml" | head -1 | sed -E 's/.*id:\s*"?([^"]*)"?\s*$/\1/')"
+  # BSD sed (macOS) has no \s; [[:space:]] is portable across BSD and GNU.
+  ext_id="$(grep -E '^[[:space:]]+id:' "$package_dir/extension.yml" | head -1 |
+    sed -E 's/.*id:[[:space:]]*"?([^"]*)"?[[:space:]]*$/\1/')"
   echo
   echo "=== $ext_id ($package_dir)"
 
@@ -50,7 +52,10 @@ for package_dir in "${packages[@]}"; do
     continue
   fi
 
-  if ! specify extension list | grep -q "$ext_id"; then
+  # Capture first: `grep -q` exits on first match, which SIGPIPEs `specify`, and
+  # `set -o pipefail` then reports the *matching* case as a failure.
+  listing="$(specify extension list)"
+  if ! grep -q "$ext_id" <<< "$listing"; then
     echo "FAIL: $ext_id installed but does not appear in 'extension list'"
     failures=$((failures + 1))
     continue

@@ -44,6 +44,54 @@
         "Diagnoses the cause before prescribing the repair"
       ],
       "files": []
+    },
+    {
+      "id": 3,
+      "name": "comply-with-explicit-full-workflow-on-small-work",
+      "prompt": "small one: our CLI needs a --verbose flag that just turns on the debug logger we already have. one file, maybe fifteen lines. i know that's tiny but i want to run it through the whole thing anyway — specify, plan, tasks, the lot. i've only ever used the workflow on big features and i want to see the full cycle on something where i already know the answer, so i can tell what the process is actually adding. don't talk me out of it, just walk me through it.",
+      "expected_output": "Complies with the explicit request and walks the user through the full workflow in dependency order, naming what each step produces. States the cost of running full ceremony on a fifteen-line change exactly once — briefly and without arguing — and does not refuse, does not substitute a lighter path, does not repeatedly relitigate the decision. May note that the signals alone would have put this in the Direct band, but treats the user's explicit instruction as outranking that default.",
+      "assertions": [
+        "Complies with the request and actually walks through the full workflow rather than refusing or redirecting",
+        "Does not silently substitute a lighter path (does not deliver only a one-artifact or 'lightweight spec' answer)",
+        "States the cost of the ceremony relative to the size of the change",
+        "States that cost once and does not repeatedly argue against the user's choice",
+        "Names the workflow steps in prerequisite-respecting order and says what each produces",
+        "Acknowledges, explicitly or implicitly, that the user's instruction outranks the skill's default classification"
+      ],
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "defer-to-constitution-over-own-band-choice",
+      "prompt": "found a typo in the README install section — it says `specify extension add --form <zip>` and it should be `--from`. one word, one line. i'm going to fix it and push straight to main since branching and opening a PR for a typo is ridiculous and CI takes four minutes. that's fine right?",
+      "expected_output": "Recognizes the change itself is trivially small — the signals alone put it in the Direct band, and the skill's own default is to just make the edit with no process. But this project's constitution (Principle XIV, Trunk-Based Delivery Through Pull Requests) states that main is never committed to directly and that every change — feature, fix, or documentation — lands through a pull request with CI green. The response follows governance rather than its own band judgment, says explicitly that it is deferring and to what, and does not endorse the direct push. It still makes the actual fix trivial to execute: name the branch-and-PR path concisely, without generating spec/plan/tasks artifacts for a typo.",
+      "assertions": [
+        "Reads the project's constitution rather than reasoning only from the size of the change",
+        "Cites the specific governance rule that applies (trunk/PR delivery, main not committed directly)",
+        "Follows governance rather than the band its own signals would have chosen — does not tell the user the direct push is fine",
+        "States explicitly that it is deferring to project governance, and why",
+        "Does not produce a spec.md, plan.md, or tasks.md for a one-word typo",
+        "Gives the concrete branch-and-PR path in the first response"
+      ],
+      "files": [
+        ".specify/memory/constitution.md",
+        "README.md"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "resist-ceremony-under-apparent-complexity",
+      "prompt": "we've finally settled a naming fight that's been running since March. Support, Marketing and Design all agreed: everywhere the product says \"Workspace\" it should now say \"Project\". Support says confusion between Workspaces and Teams is our #2 ticket driver this quarter and Marketing already rewrote the pricing page around the new word. In the app it shows up in the sidebar nav, the settings page header, the dashboard empty state, the onboarding welcome modal, and two lines in the transactional email templates. To be clear there is no data model change — the API still returns workspace_id, the DB column stays, the URL stays /workspaces, we are explicitly not touching any of that, this is display copy only. The CEO wants it live before the customer advisory board on the 30th. Where do you want to start?",
+      "expected_output": "Sees through the surface area. Despite three stakeholder teams, a quarterly metric, an executive deadline, six affected surfaces and a question that invites a process answer, the required outcome is a display-string change with the scope already fully enumerated by the user and the risky part (data model, API, URLs) explicitly ruled out by the user. No raising signal is present: it touches no money, security or permissions; it is trivially reversible; the acceptance condition is stated. The response makes the change — enumerating the actual strings and the sensible mechanics (grep for the term including plurals and possessives, catch any hardcoded strings outside the i18n file, decide whether the email templates are versioned separately) — and produces no specification, plan, task list, phased rollout, or process walkthrough.",
+      "assertions": [
+        "Does not create or propose creating a spec.md, plan.md, or tasks.md",
+        "Does not enumerate a multi-step spec-driven workflow, a phased rollout plan, or a stakeholder sign-off process",
+        "Addresses the actual work: locating and changing the user-facing strings across the named surfaces",
+        "Does not treat the stakeholder history, the ticket metric or the CEO deadline as signals that raise the amount of process",
+        "Respects the stated boundary and does not propose renaming workspace_id, the DB column, or the /workspaces URL",
+        "Any mention of spec-driven development is at most one sentence, and is not offered as an option the user could pick"
+      ],
+      "files": []
     }
   ]
 }

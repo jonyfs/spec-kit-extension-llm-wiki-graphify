@@ -1,0 +1,29 @@
+---
+# Configuration for the `trace` extension.
+#
+# Installed to `.specify/extensions/trace/trace-config.yml`. Every key is
+# optional; the values below are the built-in defaults, so deleting this file
+# changes nothing. To override a value without committing it, copy the key into
+# `.specify/extensions/trace/local-config.yml`, which takes precedence.
+#
+# Only flat `key: value` pairs are read. Nested mappings and lists are ignored.
+
+# Extended regular expression matching a requirement identifier in spec.md and
+# in tasks.md. The default covers the identifier families used by the stock
+# Spec Kit spec template: functional, non-functional, and success criteria.
+requirement_pattern: "(FR|NFR|SC)-[0-9]+"
+
+# When true, a requirement defined in spec.md that no task in tasks.md cites by
+# ID is reported as a failure. The stock tasks template does not cite
+# requirement IDs at all, so this is off by default: turn it on only for a
+# project whose task-writing convention includes the ID.
+require_requirement_coverage: false
+
+# When true, an unresolved `[NEEDS CLARIFICATION: ...]` marker left in spec.md
+# is reported as a failure rather than a note.
+fail_on_needs_clarification: true
+
+# When true, every finding is reported but the command still exits 0. Useful
+# when the check runs from the `after_tasks` hook and should inform rather
+# than interrupt.
+warn_only: false

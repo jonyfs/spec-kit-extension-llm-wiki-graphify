@@ -1,6 +1,10 @@
 # Spec Kit local state
 .specify/extensions/*/local-config.yml
 
+# Bridge audit log (append-only runtime state, regenerated per run)
+.specify/bridge-events.jsonl
+.specify/bridge-snapshots/
+
 # Worktrees (created by the worktrees extension)
 .worktrees/
 

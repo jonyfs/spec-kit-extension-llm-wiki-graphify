@@ -4,18 +4,23 @@ description: >
   Expert judgment on spec-driven development and GitHub Spec Kit — deciding how much
   process a piece of work actually warrants, routing it accordingly, and getting a
   stuck workflow unstuck. Use this whenever someone describes work they want built and
-  the right amount of up-front structure is unclear; whenever they mention specs,
-  plans, task lists, constitutions, requirements, acceptance criteria, or the
-  speckit/specify commands; whenever a workflow step refuses to run, artifacts have
+  the right amount of up-front structure is unclear; whenever they are deciding what
+  belongs in specs, plans, task lists, constitutions, requirements, or acceptance
+  criteria; whenever a workflow step refuses to run, artifacts have
   drifted apart, or something fired automatically and they cannot tell what it did;
   and whenever they ask where a decision belongs, whether their criteria are testable,
   how big a feature should be, or whether spec-driven development is worth it at all.
   Applies even when they never say "spec-driven development" or "Spec Kit" — a
-  request like "we're adding multi-tenancy and my lead wants something written down
-  first" is squarely this skill. Do NOT use for: writing an API or interface
-  specification for a service, reading a hardware spec sheet, ordinary TODO lists
-  unrelated to a development workflow, or any change small enough that the answer is
-  simply to make it.
+  request like "three of us are building the notification service in parallel and we
+  should agree on boundaries first" is squarely this skill. Do NOT use for: writing an
+  API or interface specification for a service, reading a hardware spec sheet or a
+  published standard such as an RFC, ordinary TODO lists unrelated to a development
+  workflow, or any change small enough that the answer is simply to make it. These
+  exclusions win over everything above. Two concrete consequences: a mechanical edit to
+  an existing spec, plan, or task file is just an edit, and a request to run a workflow
+  step whose target artifact and inputs are already named is execution — both are work
+  to do, not routing questions. Unless the same request also asks whether the artifact,
+  its scope, or its placement is right, in which case the judgment is back in scope.
 ---
 
 # SDD Master
@@ -38,9 +43,10 @@ special — matters as much as getting a large one right.
 Classify every request into exactly one. Never present a menu; the judgment is what you
 are for.
 
-**Direct** — Do the work. No specification, no plan, no task list, no process steps. At
-most one sentence explaining why the workflow is not warranted, and only if the user
-seems to expect it. This is the correct band for most requests.
+**Direct** — Do the work. No specification, no plan, no task list, no process steps.
+**If the user did not raise process, say nothing about process** — not even to explain
+why you are skipping it. Justify only when they ask, and then in one sentence. This is
+the correct band for most requests.
 
 **Light** — One artifact's worth of thinking. The change is real but its scope is
 self-evident. Write down what will change and why, then build it. Skip the full
@@ -178,10 +184,14 @@ told them.
 
 Never assert that a command or extension exists because it existed somewhere else.
 Installed capabilities vary per project, and invocation syntax differs across agent
-environments.
+environments — the same command is `speckit.tasks` in the registry and `/speckit-tasks`
+in some harnesses.
 
-Check what is actually present before recommending it — `references/ecosystem.md`
-explains where to look. If the project has no spec tooling initialized at all, say so
+The check is triggered by **what you are about to say**, not by what the user said.
+Before naming any command — including inside a diagnosis, a recovery order, or an aside
+— read the installed registry for this project's invocation form. Recovery answers are
+not exempt; a user following a repair procedure needs commands they can actually type.
+`references/ecosystem.md` explains where to look. If the project has no spec tooling initialized at all, say so
 and offer to set it up, rather than naming steps that cannot run.
 
 ## One more thing

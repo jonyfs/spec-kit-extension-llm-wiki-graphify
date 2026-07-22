@@ -151,7 +151,7 @@ restating the question.
 - [X] T043 [P] Verify every file in the skill package is written in English per constitution Principle IX
 - [X] T044 Read one full evaluation transcript against all twelve clauses of `contracts/routing-contract.md`, noting qualitatively whether the responses read as reasoning or as checklist recital
 - [X] T045 [P] Add the skill to `CHANGELOG.md` under Unreleased per constitution Principle VIII
-- [ ] T046 Open a pull request from `001-sdd-master-skill` to `main` with the constitution checklist honestly completed, and confirm all four CI jobs are green per constitution Principle XIV
+- [X] T046 Open a pull request from `001-sdd-master-skill` to `main` with the constitution checklist honestly completed, and confirm all four CI jobs are green per constitution Principle XIV
 
 ---
 

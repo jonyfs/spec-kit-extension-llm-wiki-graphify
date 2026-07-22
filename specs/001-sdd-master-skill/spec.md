@@ -208,8 +208,12 @@ restatement of the question.
 
 ### Measurable Outcomes
 
-- **SC-001**: Across a representative set of trivial requests, the skill produces no
-  workflow artifacts and adds no process steps in at least 9 of 10 cases.
+- **SC-001** *(revised 2026-07-22 — see Assumptions)*: Across a representative set of
+  trivial requests where the user explicitly raises the methodology, the skill declines
+  the full workflow **and declines to substitute a reduced artifact for it** in at least
+  9 of 10 cases. The measured failure is not over-processing; it is hedging into a
+  compromise artifact — "just write the three-line version", "a one-paragraph spec" —
+  under social pressure from a stated team rule or an insistent asker.
 - **SC-002**: Across a representative set of substantial ambiguous requests, the skill
   routes into the full workflow with steps named in correct dependency order in at
   least 9 of 10 cases.
@@ -247,3 +251,26 @@ restatement of the question.
 - **The thresholds in Success Criteria are targets, not observed values.** They define
   what "working" means for the evaluation set; they are not claims about current
   behavior.
+
+- **The original SC-001 measured a failure mode that does not occur in conversation, and
+  was rewritten after evaluation disproved it.** The premise was that models over-apply
+  ceremony to small work. Three independent rounds failed to reproduce it: two with-and-
+  without comparisons, then a clean baseline written by an agent told nothing about the
+  premise or the skill. Across every trivial prompt — including ones where the user
+  stated a team rule requiring the workflow, and one where the user asked only which
+  command to start with — **no baseline recommended the full workflow.** Several
+  independently reconstructed the skill's own reasoning without having read it.
+
+  The cited case study behind the premise — Spec Kit generating roughly 1,300 lines to
+  display a date — is real, but it is evidence about what the *commands* generate once
+  invoked, not about a model's judgment when asked a question. SC-001 was aimed at the
+  wrong target.
+
+  What the unaided baseline does get wrong is narrower and real: under social pressure it
+  hedges into a reduced artifact rather than declining outright. That is the skill's
+  Direct-band second temptation, and it is what the revised SC-001 measures.
+
+  This is recorded rather than quietly corrected because the skill's own guidance tells
+  users to distinguish evidence from assertion. A spec that kept an unfounded criterion
+  after its own evaluation refuted it would be failing the standard the artifact it
+  describes is built to enforce.

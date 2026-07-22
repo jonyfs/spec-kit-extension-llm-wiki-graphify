@@ -262,3 +262,17 @@ Any recovery that regenerates an artifact **destroys hand-edits and completion s
 that artifact and everything below it**. Say so before recommending it, every time, and
 offer the preserving alternative — copy the artifact aside, regenerate, and reconcile —
 whenever one exists.
+
+## Naming commands the user can actually type
+
+Before you put a command in a repair procedure, check this project's invocation form.
+The registry stores dotted names (`speckit.tasks`, `speckit.analyze`); several harnesses
+expose them hyphenated and slash-prefixed (`/speckit-tasks`, `/speckit-analyze`). The
+mapping is mechanical — replace dots with hyphens — but which form the user can type is
+a property of their harness, not of Spec Kit.
+
+Read `.specify/extensions/.registry` for the registered names and check the harness's
+own command directory (for example `.claude/skills/` or `.claude/commands/`) for the
+exposed form. This applies inside a diagnosis just as much as inside a recommendation: a
+recovery order full of commands that do not resolve is worse than no recovery order,
+because the user assumes their state is more broken than it is.

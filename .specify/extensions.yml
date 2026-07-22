@@ -20,7 +20,7 @@ hooks:
     condition: null
   - extension: worktrees
     command: speckit.worktrees.create
-    enabled: true
+    enabled: false
     optional: false
     priority: 10
     prompt: Execute speckit.worktrees.create?

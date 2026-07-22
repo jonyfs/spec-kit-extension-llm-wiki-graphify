@@ -1,0 +1,52 @@
+---
+schema_version: "1.0"
+
+extension:
+  id: "trace"
+  name: "Feature Traceability Check"
+  version: "1.0.0"
+  description: >-
+    Mechanically checks that the current feature's spec.md, plan.md and
+    tasks.md stay mutually consistent: every user story has tasks, every
+    requirement ID cited by a task exists, no duplicate IDs, no unresolved
+    clarification markers.
+  author: "jonyfs"
+  repository: "https://github.com/jonyfs/spec-kit-extension-template"
+  license: "MIT"
+  homepage: "https://github.com/jonyfs/spec-kit-extension-template"
+  category: "quality"
+  effect: "read-only"
+
+requires:
+  speckit_version: ">=0.2.0"
+
+provides:
+  commands:
+    - name: "speckit.trace.check"
+      file: "commands/check.md"
+      description: >-
+        Report traceability gaps between the current feature's spec.md,
+        plan.md and tasks.md
+      aliases:
+        - "speckit.trace.verify"
+  config:
+    - name: "trace-config.yml"
+      template: "trace-config.yml"
+      required: false
+      description: "Requirement ID pattern and strictness switches"
+
+hooks:
+  after_tasks:
+    command: "speckit.trace.check"
+    optional: true
+    priority: 10
+    prompt: "Run the traceability check against the tasks that were just generated?"
+    description: >-
+      Reports user stories with no tasks, tasks citing unknown requirement
+      IDs, duplicate task or requirement IDs, and unresolved
+      [NEEDS CLARIFICATION] markers. Read-only.
+
+tags:
+  - "quality"
+  - "traceability"
+  - "review"
