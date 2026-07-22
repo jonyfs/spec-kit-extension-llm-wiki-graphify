@@ -70,6 +70,13 @@ The order is normative. Each step's failure stops the command with the correspon
 5. **Report** (FR-010 – FR-014). Render the `BuildReport` from the script's structured
    output. On a refresh, include the delta (FR-011).
 
+6. **Handoff offer** (FR-013b). When the scope contained documents the deterministic pass
+   did not interpret, offer the model-assisted pass as an explicit next step, naming the
+   command that performs it. Offer only — never run it, and never make the build's success
+   conditional on it. For a publicly installed plugin this step is what separates "your
+   graph covers code" from a stranger assuming their specification files are in the graph
+   when they are not.
+
 ## Report requirements
 
 - **Evidence labels appear verbatim.** `EXTRACTED`, `INFERRED`, and `AMBIGUOUS` are

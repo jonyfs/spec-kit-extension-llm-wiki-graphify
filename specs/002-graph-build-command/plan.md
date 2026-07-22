@@ -55,8 +55,17 @@ directories; no prompting from scripts (R8); no parsing of graph internals beyon
 documented node-link fields (R4).
 
 **Scale/Scope**: One command, one config file, two script variants, one opt-in hook. The
-graphs themselves range from a handful of nodes to tens of thousands; the extension never
-holds a graph in memory beyond a single counting pass over `graph.json`.
+counting pass loads the whole graph, measured at 0.65 s for 50,000 nodes and 200,000 links
+(45.7 MB) — far beyond typical output, so no streaming parser is warranted (research R15).
+
+**Distribution**: This is a **publicly maintained plugin**, not an internal tool. Three
+consequences bind the implementation rather than merely colouring it. First, the version
+ceiling on a pre-1.0 dependency stops being cautious and becomes necessary — an upstream
+release would otherwise break installations the author cannot see or fix (research R14).
+Second, Principle XII's distribution matrix must be proven in the published artifact, not
+the working tree, before any catalog entry. Third, every message is read by someone who
+cannot ask a follow-up question, which is the reason the outcome vocabulary is nine
+distinguishable values rather than success-or-failure.
 
 ## Constitution Check
 

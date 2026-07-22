@@ -10,6 +10,14 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
+**Audience**: this ships as a **publicly maintained Spec Kit plugin**, installed by people
+the author will never meet, into projects the author will never see. That single fact sets
+the bar for everything below. A stranger cannot ask what a message meant, cannot infer that
+a graph is partial, and cannot work around a broken dependency check by reading the source.
+Every requirement about naming a missing dependency, stating what was not interpreted, and
+keeping outcomes distinguishable exists because the reader is a stranger, not because the
+author needs the reminder.
+
 The user throughout is a **maintainer of a Spec Kit project** who has installed the
 `llm-wiki-graphify` extension and wants a knowledge graph of their own project available
 to the Spec Kit workflow. This feature is the foundation the rest of the extension rests
@@ -70,6 +78,10 @@ must say so every time rather than let the maintainer infer completeness.
    **When** a build completes,
    **Then** the report states that code was interpreted and that documents, papers, and
    images were not, and names the separate pass that covers them.
+9. **Given** a completed build whose scope contained prose documents,
+   **When** the report is rendered,
+   **Then** the model-assisted pass is offered as an explicit next step, and declining it
+   leaves the completed build intact and reported as successful.
 
 ---
 
@@ -226,6 +238,10 @@ step, and produces no output directory and no graph.
 - **FR-013a**: Every report for a completed build MUST state what was interpreted and what
   was not — specifically, that code was read and that documents, papers, and images require
   the separate model-assisted pass — and MUST state that no exclusions were applied.
+- **FR-013b**: When a completed build's scope contained documents the deterministic pass
+  did not interpret, the command MUST offer the model-assisted handoff as an explicit next
+  step, naming the command that performs it. The offer is declinable and MUST NOT run
+  automatically.
 - **FR-014**: Every failure MUST be reported, never absorbed; a step that was skipped MUST
   NOT be presented as completed.
 
@@ -294,6 +310,11 @@ not only observed passing.
   declined, dependency missing, dependency below the supported version, another build
   already running, an interrupted previous build, and a tool failure — 100% are reported
   as distinct from one another, with no two producing the same message.
+- **SC-009**: A person who has never seen this project can, from the command's output
+  alone, correctly state whether their documentation is in the graph. *(Falsifiable: ask
+  someone unfamiliar with the feature to read a build report and answer the question; a
+  report that omits the coverage statement produces a wrong answer, and the wrong answer is
+  always "yes, it is in there".)*
 - **SC-008**: 100% of completed builds state what was not interpreted. *(Falsifiable: a
   report that lists entity and relationship counts without the coverage statement fails
   this, and is otherwise indistinguishable from a complete graph.)*
@@ -319,6 +340,13 @@ not only observed passing.
   project sees an incomplete picture until the maintainer runs the separate pass. The
   command's obligation is to make that incompleteness impossible to miss (FR-013a), not to
   hide it.
+
+  This decision is sharper for a public plugin than it would be for a private tool. An
+  installer arrives expecting the graph the upstream tool advertises — code, docs, papers,
+  images — and gets the code half. That is acceptable only because the report says so
+  every time and the command offers the handoff (FR-013b); it would not be acceptable
+  silently. Interpreting prose is a separate feature, not a deferred obligation of this
+  one.
 - **Exclusions are not available in v1.** The underlying tool exposes no exclusion option,
   so scope is controlled by the root alone.
 - **The output location is the one the external tool uses by default.** The extension does

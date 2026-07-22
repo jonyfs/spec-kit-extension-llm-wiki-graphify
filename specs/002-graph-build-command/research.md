@@ -342,6 +342,37 @@ verified. It had not, and it does not hold.
 
 ---
 
+## R15: The counting pass is not a scale concern
+
+**Decision**: Read `graph.json` whole and count in one pass. No streaming parser, no
+sampling, no size threshold.
+
+**Evidence**: Synthetic graphs at two scales, counted with the same one-pass approach the
+contract specifies:
+
+| Graph | File size | Load + count + breakdown |
+|---|---|---|
+| 10,000 nodes / 40,000 links | 9.0 MB | 0.14 s |
+| 50,000 nodes / 200,000 links | 45.7 MB | 0.65 s |
+
+**Rationale**: 50,000 nodes is far beyond what the tool produces for a typical repository,
+and sub-second is invisible next to the build itself. Adding a streaming parser to defend
+against a cost that does not exist would be complexity with no subject.
+
+**Bound worth stating**: the pass holds the whole graph in memory, so its ceiling is
+memory, not time — roughly 10× the file size for a Python-parsed JSON document. A graph
+large enough to matter would have to exceed several hundred megabytes, at which point the
+build that produced it was the real problem.
+
+**Fixture note**: the generator used here is how
+`tests/fixtures/graph-build-mixed/graphify-out/graph.json` is produced — a graph with
+`EXTRACTED`, `INFERRED`, and `AMBIGUOUS` links in known proportions, which the scripted
+build cannot generate on its own (quickstart Scenario 12).
+
+**Resolves**: Critique question E9.
+
+---
+
 ## Resolved unknowns
 
 | Unknown from Technical Context | Resolved by |
@@ -359,6 +390,7 @@ verified. It had not, and it does not hold.
 | How interrupted and concurrent states are detected | R12 |
 | Whether exclusions are honoured | R13 |
 | What version range is safe to depend on | R14 |
+| Whether graph size threatens the counting pass | R15 |
 
 No `NEEDS CLARIFICATION` items remain.
 
