@@ -35,12 +35,40 @@ my-extension/
 2. Read [`docs/PACKAGING.md`](docs/PACKAGING.md) to understand how your extension
    will actually reach users.
 3. Read [`docs/HOOKS.md`](docs/HOOKS.md) before declaring any hook.
-4. Build your extension, then prove it:
+4. Copy [`template/`](template/) and adapt it. It is a working extension, not a
+   skeleton — see below.
+5. Prove it:
 
 ```bash
 python scripts/validate-extension.py path/to/my-extension
 bash scripts/install-test.sh
 ```
+
+## The reference extension
+
+[`template/`](template/) holds `trace`, a small read-only extension that checks a
+feature's artifacts are mechanically consistent — a user story with no tagged tasks, a
+task citing a requirement the spec never defines, duplicate IDs, surviving
+`[NEEDS CLARIFICATION]` markers.
+
+It exists to be copied. Every rule this repository enforces is visible in it working
+rather than described: namespaced commands, a hook that is `optional: true` with a real
+prompt, bash and PowerShell scripts at parity, config that tolerates being absent, and
+no placeholder markers anywhere. Start from it rather than from a blank directory.
+
+It is also what keeps `scripts/install-test.sh` honest. Before it existed the script had
+nothing to install and exited green having tested nothing.
+
+## The sdd-master skill
+
+[`.claude/skills/sdd-master/`](.claude/skills/sdd-master/) is a Claude Code skill that
+decides how much process a piece of work warrants and routes accordingly. It is not part
+of the extension template — it is how this repository is built — but it is included
+because the judgment it encodes applies to any spec-driven project.
+
+Its evaluation record is in `specs/001-sdd-master-skill/`, including the round where the
+evaluation disproved one of the spec's own success criteria and the criterion was
+rewritten rather than quietly dropped.
 
 ## Documentation
 

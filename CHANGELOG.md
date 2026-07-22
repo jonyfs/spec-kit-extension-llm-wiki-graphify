@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `trace` reference extension in `template/` — a read-only feature-traceability check
+  (`speckit.trace.check`) that reports stories with no tagged tasks, tasks citing
+  undefined requirement IDs, duplicate IDs, and surviving `[NEEDS CLARIFICATION]`
+  markers. Ships bash and PowerShell at parity and exists to be copied as the starting
+  point for a new extension.
+
+### Fixed
+
+- `scripts/install-test.sh` could not pass on macOS for any package. The extension id
+  was extracted with sed's `\s`, a GNU extension BSD sed silently ignores; and
+  `specify extension list | grep -q` under `set -o pipefail` reported the *matching*
+  case as a failure, because `grep -q` exits at first match and `specify` takes SIGPIPE.
+  Both were invisible while the repository had no extension to test.
+
 - `sdd-master` skill (`.claude/skills/sdd-master/`) — proactive expertise on
   spec-driven development and Spec Kit. A router holding the four-band effort
   classification and signal table, plus four references loaded on demand and split
