@@ -107,3 +107,60 @@ jobs:
         # an extension actually works. --dev covers the local-directory form; the
         # ZIP forms are proven at release time against the published asset.
         run: bash scripts/install-test.sh
+
+  graph-build:
+    name: Graph build script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install graphify at the verified version
+        # Pinned deliberately. graphify is pre-1.0 and promises no compatibility
+        # between minor versions, and every field this extension reads was observed
+        # in exactly one release. Floating the version here would mean the suite
+        # stops testing the version the contracts were written against.
+        run: |
+          pip install uv
+          uv tool install 'graphifyy>=0.9.9,<0.10.0'
+          graphify --version
+
+      - name: Assert every failure path actually fails
+        run: bash scripts/test-graph-build.sh
+
+  graph-build-windows:
+    name: Graph build script (Windows parity)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install graphify at the verified version
+        # uv installs tools to ~/.local/bin, which is not on PATH on the Windows
+        # runner. Without this the step fails at `graphify --version` and the
+        # parity assertions never run — a job that fails loudly rather than a
+        # gate that passes having tested nothing, but still the wrong failure.
+        run: |
+          pip install uv
+          uv tool install 'graphifyy>=0.9.9,<0.10.0'
+          "$env:USERPROFILE\.local\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        shell: pwsh
+
+      - name: Verify graphify resolves
+        shell: pwsh
+        run: graphify --version
+
+      - name: Assert the PowerShell variant matches the bash contract
+        # Principle V requires behavioural parity, and Principle XV forbids
+        # trusting a check nobody has watched. The PowerShell variant has been
+        # exercised on PowerShell Core under macOS, which is not the same thing as
+        # Windows: path separators, process lookup, and filesystem semantics all
+        # differ. This job is where the claim is actually settled.
+        shell: pwsh
+        run: ./scripts/test-graph-build.ps1

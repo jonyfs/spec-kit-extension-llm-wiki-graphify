@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`llm-wiki-graphify` extension package** in `extension/` — the first shipped extension of
+  this repository. `speckit.llm-wiki-graphify.build` verifies the maintainer's graphify
+  installation, reports what a build would examine, waits for confirmation, and then builds
+  or refreshes the project knowledge graph. Nine distinguishable outcomes, each with its own
+  exit code; evidence labels reported verbatim; a coverage statement on every completed
+  build. Bash and PowerShell at parity.
+- `scripts/test-graph-build.sh` and `scripts/test-graph-build.ps1` — suites that assert each
+  failure path actually fails, checking both the exit code and the reported outcome. Every
+  failure state is constructed deterministically rather than raced.
+- `tests/fixtures/graph-build-{code,empty,mixed}/` — including one deliberately committed
+  graph carrying all three evidence labels, since the deterministic build emits only
+  `EXTRACTED` and provenance coverage cannot otherwise be proven.
+- CI jobs `graph-build` and `graph-build-windows`, the latter existing because PowerShell
+  parity verified on macOS is not the same claim as parity on Windows.
+
 ### Changed
 
 - **Constitution amended to v2.0.0 (MAJOR).** The project is now governed as one
@@ -25,8 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `README.md` rewritten to describe the `llm-wiki-graphify` extension — its scope,
   its graphify dependency, and the four rules that shape it — rather than a
   general-purpose extension template.
-
-### Added
 
 - `trace` reference extension in `template/` — a read-only feature-traceability check
   (`speckit.trace.check`) that reports stories with no tagged tasks, tasks citing
