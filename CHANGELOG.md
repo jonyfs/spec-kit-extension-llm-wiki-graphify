@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   markers. Ships bash and PowerShell at parity and exists to be copied as the starting
   point for a new extension.
 
+- `scripts/test-validator.sh` and `tests/fixtures/invalid-extension/` — assert that
+  the manifest validator rejects a package violating six rules, and rejects it for the
+  right reasons. Constitution Principle XV: a gate that has only ever passed carries no
+  information, because passing and being unreachable produce identical output.
+
 ### Fixed
 
 - `scripts/install-test.sh` could not pass on macOS for any package. The extension id
@@ -22,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `specify extension list | grep -q` under `set -o pipefail` reported the *matching*
   case as a failure, because `grep -q` exits at first match and `specify` takes SIGPIPE.
   Both were invisible while the repository had no extension to test.
+- `.specify/bridge-events.jsonl` was tracked in git despite being gitignored — adding a
+  path to `.gitignore` does not untrack a file already committed. It is a runtime audit
+  log the bridge extension appends to on every run.
 
 - `sdd-master` skill (`.claude/skills/sdd-master/`) — proactive expertise on
   spec-driven development and Spec Kit. A router holding the four-band effort

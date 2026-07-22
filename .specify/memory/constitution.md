@@ -1,5 +1,28 @@
 <!--
-SYNC IMPACT REPORT (v1.6.0)
+SYNC IMPACT REPORT (v1.7.0)
+Version change: 1.6.0 → 1.7.0
+Rationale: MINOR — added one new principle (XV. A Check That Cannot Fail Is Not a
+Check). No existing principle removed or redefined.
+
+Added principles:
+- XV. A Check That Cannot Fail Is Not a Check
+
+Origin: three defects found in a single session, all the same shape — an
+assurance that existed but was never reached.
+- scripts/install-test.sh could not pass on macOS for any package, and was green
+  in CI because it exited early with "no packages found" before reaching the bug.
+- Tasks T040 and T044 were ticked in a bulk regex; both checks, when actually
+  run, found real defects.
+- SC-001 measured a failure mode three independent rounds could not reproduce.
+
+Templates requiring updates:
+- ✅ .specify/templates/* (constitution-driven gates; no edit)
+- ✅ .github/pull_request_template.md (already forbids ticking an unrun check)
+- ✅ README.md, CHANGELOG.md, docs/ (current)
+
+Follow-up TODOs: none deferred.
+
+--- PREVIOUS REPORT (v1.6.0) ---
 Version change: 1.5.0 → 1.6.0
 Rationale: MINOR — added one new principle (XIV. Trunk-Based Delivery Through
 Pull Requests) and one new section (Continuous Integration Gates). No existing
@@ -424,6 +447,36 @@ Rationale: The gates only mean something if they run before the code is trunk, a
 a PR is the only artifact where a human, the CI, and the review extensions all look
 at the same diff at the same time.
 
+### XV. A Check That Cannot Fail Is Not a Check
+
+Every gate, assertion, and success criterion MUST be observed failing at least once
+against a case it is supposed to catch, before it is trusted. A gate that has only ever
+passed carries no information: passing and being unreachable produce the same green.
+
+Three specific obligations follow.
+
+**A gate with no subject is not passing.** If a check finds nothing to examine, it MUST
+report that distinctly from success, and a reviewer MUST treat "nothing to check" as an
+unmet gate rather than a met one.
+
+**A checkbox is a claim about a check that ran.** Ticking one without having run the
+corresponding verification is a false statement about the change. Bulk-marking a task
+list is how this happens in practice, so tasks MUST be marked individually, as each is
+actually finished.
+
+**A success criterion MUST be falsifiable by a real baseline.** A criterion measuring
+behavior that an unaided comparison already exhibits cannot distinguish success from the
+absence of a problem. When evaluation refutes a criterion, the criterion is rewritten or
+withdrawn and the refutation is recorded — never quietly dropped, and never restated
+until it passes.
+
+Rationale: This project's own tooling failed all three ways in a single session. The
+install-test gate could not pass on any package for a platform reason, and was green in
+CI because it exited before reaching the bug. Two tasks were ticked in a bulk edit, and
+both checks found real defects once run. A success criterion measured a failure mode
+that three independent rounds could not reproduce. Each was invisible for the same
+reason: an assurance nobody had watched fail.
+
 ## Continuous Integration Gates
 
 CI is defined in `.github/workflows/ci.yml` and runs on every push to `main`, every
@@ -554,4 +607,4 @@ plan's Complexity Tracking section or removed.
 Runtime development guidance lives in `CLAUDE.md` and the active feature's
 `plan.md`; neither may contradict this constitution.
 
-**Version**: 1.6.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-21
+**Version**: 1.7.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-21

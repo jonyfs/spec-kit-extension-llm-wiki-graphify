@@ -58,6 +58,7 @@ jobs:
             find . -name extension.yml \
               -not -path './.git/*' \
               -not -path './.specify/extensions/*' \
+              -not -path './tests/fixtures/*' \
               -printf '%h\n' | sort -u
           )
           if [ ${#packages[@]} -eq 0 ]; then
@@ -67,6 +68,11 @@ jobs:
           printf 'Found %d package(s):\n' "${#packages[@]}"
           printf '  %s\n' "${packages[@]}"
           python scripts/validate-extension.py "${packages[@]}"
+
+      - name: Prove the validator can fail
+        # Principle XV: a gate that has only ever passed carries no information,
+        # because passing and being unreachable look identical.
+        run: bash scripts/test-validator.sh
 
   placeholders:
     name: Guard template placeholders

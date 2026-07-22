@@ -22,6 +22,9 @@ packages=()
 while IFS= read -r manifest; do
   package_dir="$(dirname "$manifest")"
   [[ "$package_dir" == "$REPO_ROOT/.specify/extensions/"* ]] && continue
+  # Deliberately invalid fixtures exist to prove the validator fails; they are
+  # not installable packages.
+  [[ "$package_dir" == "$REPO_ROOT/tests/fixtures/"* ]] && continue
   packages+=("$package_dir")
 done < <(find "$REPO_ROOT" -name extension.yml -not -path '*/.git/*')
 
