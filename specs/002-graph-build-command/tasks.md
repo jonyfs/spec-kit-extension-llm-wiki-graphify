@@ -204,10 +204,14 @@ quietly assumed rather than checked.
 
 Recorded honestly rather than by ticking everything that looked adjacent.
 
-- **T040** — the Windows CI job and `scripts/test-graph-build.ps1` are written and the
-  suite passes (24/24) on PowerShell Core under macOS. That is **not** parity on Windows:
-  path separators, `Get-Process`, and filesystem semantics all differ. The claim is settled
-  when the CI job runs, not before.
+- **T040 — settled.** The Windows job ran on `windows-latest` and the PowerShell suite
+  passed **26/26**, including the lock-release assertions that caught the bash defect. Two
+  CI configuration failures had to be fixed first: a duplicate `### Added` heading, and
+  `uv` installing graphify to a `~/.local/bin` that is not on the Windows runner's PATH.
+  The second is worth noting — the job failed at `graphify --version` rather than skipping
+  the assertions and reporting green, which is the correct failure mode, but the parity
+  claim stayed unsettled until it was fixed. Parity on macOS PowerShell Core was never the
+  same claim as parity on Windows, and now the claim rests on the run that settles it.
 - **T043** — `scripts/install-test.sh` passes for both packages: add → list → info →
   remove. Principle VII also requires every declared command and hook to be executed at
   least once inside an installed project, and that has not been done. The task stays open
