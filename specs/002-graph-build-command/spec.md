@@ -31,6 +31,13 @@ for, and every other capability is an increment on top of it.
 command and confirm a graph is produced, a summary is reported, and the maintainer was
 asked before the build started. Delivers a queryable graph with no other feature present.
 
+**What this build covers**: the deterministic pass reads **code only**. Documents, papers,
+and images are interpreted by a separate model-assisted pass that belongs to the
+maintainer's own knowledge-graph tooling, and this command hands off to it rather than
+performing it. For a project whose most valuable content is prose — which describes most
+projects this extension targets — a build alone produces a partial graph, and the command
+must say so every time rather than let the maintainer infer completeness.
+
 **Acceptance Scenarios**:
 
 1. **Given** a project with no existing graph and the knowledge-graph tool available,
@@ -59,6 +66,10 @@ asked before the build started. Delivers a queryable graph with no other feature
 7. **Given** the same project on either supported operating system,
    **When** the maintainer runs the command,
    **Then** the outcome and the report are equivalent.
+8. **Given** a project containing both code and prose documents,
+   **When** a build completes,
+   **Then** the report states that code was interpreted and that documents, papers, and
+   images were not, and names the separate pass that covers them.
 
 ---
 
@@ -160,8 +171,10 @@ step, and produces no output directory and no graph.
   directory of the same name). The command must report the collision instead of
   overwriting.
 - **The project contains files the maintainer does not want examined** (vendored
-  dependencies, secrets, large binaries). Exclusions are honored, and what was excluded is
-  reported rather than silently skipped.
+  dependencies, secrets, large binaries). The underlying tool offers no exclusion
+  mechanism, so v1 controls what is read through the scope root alone. The command MUST
+  state that no exclusions were applied rather than imply any were — a report claiming a
+  directory was skipped when it was read is worse than having no exclusion feature at all.
 - **Sensitive content.** The command must never transmit or write project content outside
   the project directory beyond what the underlying tool's own configured behavior does,
   and must state up front that unstructured content is interpreted by a model.
@@ -210,6 +223,9 @@ step, and produces no output directory and no graph.
   every report, and MUST NOT collapse them into undifferentiated prose.
 - **FR-013**: A run that finds nothing to examine MUST be reported as a distinct outcome
   from a successful build and MUST NOT be reported as success.
+- **FR-013a**: Every report for a completed build MUST state what was interpreted and what
+  was not — specifically, that code was read and that documents, papers, and images require
+  the separate model-assisted pass — and MUST state that no exclusions were applied.
 - **FR-014**: Every failure MUST be reported, never absorbed; a step that was skipped MUST
   NOT be presented as completed.
 
@@ -274,10 +290,13 @@ not only observed passing.
   correct one.)*
 - **SC-004**: 100% of relationships reported to the maintainer carry their evidence label,
   and 0% of model-inferred or uncertain relationships appear in any report without one.
-- **SC-005**: Across a full build, a refresh, a no-change refresh, a declined
-  confirmation, a missing dependency, an empty project, and an interrupted build, 100% of
-  outcomes are reported as distinct from one another, with no two producing the same
-  message.
+- **SC-005**: Across all nine outcomes — built, already current, nothing to examine,
+  declined, dependency missing, dependency below the supported version, another build
+  already running, an interrupted previous build, and a tool failure — 100% are reported
+  as distinct from one another, with no two producing the same message.
+- **SC-008**: 100% of completed builds state what was not interpreted. *(Falsifiable: a
+  report that lists entity and relationship counts without the coverage statement fails
+  this, and is otherwise indistinguishable from a complete graph.)*
 - **SC-006**: After any number of builds and refreshes, 0 produced artifacts appear in
   version control status.
 - **SC-007**: No build starts without an explicit request in that same invocation, across
@@ -294,6 +313,14 @@ not only observed passing.
 - **Only a local project is in scope for this feature.** The underlying tool can also
   ingest remote repositories and merge several sources into one graph; those forms are
   deferred until the local case is proven.
+- **v1 builds a code graph, deliberately.** The deterministic pass is local, free, fast,
+  and requires no model; the pass that interprets prose is none of those. Shipping the
+  cheap half first is the choice being made here, and the cost is that a prose-heavy
+  project sees an incomplete picture until the maintainer runs the separate pass. The
+  command's obligation is to make that incompleteness impossible to miss (FR-013a), not to
+  hide it.
+- **Exclusions are not available in v1.** The underlying tool exposes no exclusion option,
+  so scope is controlled by the root alone.
 - **The output location is the one the external tool uses by default.** The extension does
   not relocate it, because the tool's own subsequent invocations expect to find it there.
 - **Interpreting unstructured content costs money and time.** The confirmation step exists

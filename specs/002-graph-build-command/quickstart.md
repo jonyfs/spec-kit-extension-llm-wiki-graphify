@@ -58,7 +58,8 @@ files. A different count means either the fixture or the counting changed, and b
 worth stopping for.
 
 **Also verify**: `git status` in a repository shows no `graphify-out/` content (FR-017,
-SC-006), and the report names the output location and carries the non-code notice.
+SC-006), and the report names the output location and carries the coverage statement —
+code interpreted, prose not interpreted, no exclusions applied (FR-013a, SC-008).
 
 ## Scenario 2 — Confirmation is required (FR-005, FR-006, SC-007)
 
@@ -83,6 +84,36 @@ Expected: `outcome=current`, exit 0, and the tool's own line
 `No code-graph topology changes detected; outputs left untouched.` passed through to
 stderr. Verified behaviour of graphify 0.9.9 (research R5).
 
+## Scenario 4a — Full rebuild (FR-007, research R10)
+
+```bash
+bash <ext>/scripts/bash/graph-build.sh build --confirmed --full
+```
+
+Expected: `graphify-out/graph.json` is removed and regenerated, `outcome=built`, and the
+counts match a from-scratch build. Verify explicitly that `cache/`, `manifest.json`, and
+any dated backup directory **survive** — a `full` mode that removes the whole output
+directory turns a rebuild into data loss.
+
+Note there is no `--full` flag on the tool itself (`error: unknown update option: --full`)
+and `--force` is not equivalent. If a future graphify adds a real full-rebuild option, this
+scenario is where the change surfaces.
+
+## Scenario 4b — Non-default scope root (FR-015, research R11)
+
+```bash
+mkdir -p /tmp/gb-root/sub/src && cd /tmp/gb-root
+printf 'def s():\n    return 1\n' > sub/src/s.py
+bash <ext>/scripts/bash/graph-build.sh build --confirmed --path sub
+```
+
+Expected: `sub/graphify-out/` exists, and **`/tmp/gb-root/graphify-out/` does not**.
+
+The tool writes a `manifest.json` into the working directory while writing the graph to
+the target path, so without the script changing directory first, this scenario finds a
+stray output directory. Every other scenario uses the default root and would never catch
+it.
+
 ## Scenario 4 — Incremental refresh (spec User Story 2, SC-003)
 
 ```bash
@@ -101,11 +132,15 @@ as a ratio.
 ## Scenario 5 — Dependency missing (spec User Story 3, FR-002, FR-004, SC-001)
 
 ```bash
-env PATH=/usr/bin:/bin bash <ext>/scripts/bash/graph-build.sh check
+mkdir -p /tmp/gb-nopath
+env PATH=/tmp/gb-nopath bash <ext>/scripts/bash/graph-build.sh check
 ```
 
-Run this on a machine where `graphify` lives outside `/usr/bin` and `/bin` — otherwise the
-scenario silently tests nothing, which is the exact failure Principle XV describes.
+Absence is **constructed**, not assumed: `PATH` is an empty directory, so the tool cannot
+be found regardless of where it is installed. The earlier form of this scenario scrubbed
+`PATH` to `/usr/bin:/bin` and asked the reader to check that graphify was not there — an
+instruction a tired person skips, on a machine where the scenario then passes having
+tested nothing. That is the exact Principle XV failure this scenario exists to catch.
 
 Expected: **exit 4**, a message naming the missing dependency and its install step, **and
 no `graphify-out/` directory created**. Check for the directory explicitly; its absence is
@@ -136,18 +171,42 @@ Expected: **exit 3**, `outcome=nothing-to-examine`, and a message distinct from 
 successful build. Exit 0 here would be the "gate with no subject" failure named in
 Principle XV.
 
-## Scenario 8 — Concurrent build (FR-020)
+## Scenario 8 — Concurrent build (FR-020, research R12)
 
-Start a build on a large fixture and, while it runs, start a second:
+Create the lock directly rather than racing two real builds:
 
-Expected: the second exits **6**, names the run in progress, and writes nothing.
+```bash
+mkdir -p .specify/extensions/llm-wiki-graphify/build.lock
+bash <ext>/scripts/bash/graph-build.sh build --confirmed
+```
 
-## Scenario 9 — Interrupted build (FR-019)
+Expected: exit **6**, the run in progress named, nothing written.
 
-Interrupt a build mid-run, then run again:
+Then verify stale-lock reclamation: with a lock recording a process identifier that no
+longer exists, the next build reclaims it, reports the reclamation, and proceeds. Without
+this, one crash disables the command permanently — a safety mechanism that becomes an
+availability failure.
 
-Expected: exit **7**, the incomplete state named, and a refusal to refresh from it. The
-previous graph must be intact or absent — never half-written and reported as complete.
+## Scenario 9 — Interrupted build (FR-019, research R12)
+
+The interrupted state is reproducible without actually interrupting anything — it is
+`manifest.json` present with `graph.json` absent:
+
+```bash
+cd /tmp/gb-code && rm -f graphify-out/graph.json
+bash <ext>/scripts/bash/graph-build.sh build --confirmed          # refresh
+```
+
+Expected: exit **7**, the incomplete state named, and a refusal to refresh from it. Then:
+
+```bash
+bash <ext>/scripts/bash/graph-build.sh build --confirmed --full   # recovery
+```
+
+Expected: `outcome=built`, recovering cleanly.
+
+Constructing the state deterministically matters: a scenario that depends on landing a
+`SIGINT` in the right millisecond is a scenario that gets skipped.
 
 ## Scenario 10 — Boundaries hold (FR-015, FR-016)
 
@@ -170,13 +229,22 @@ Parity is proven by running both, never by reading the two files side by side.
 
 ## Scenario 12 — Provenance survives (FR-012, SC-004)
 
-On a graph that has had the model-assisted pass run against it (so `INFERRED` and
-`AMBIGUOUS` links exist):
+The scripted build emits only `EXTRACTED` links, so this scenario **cannot be run against
+a graph this feature produces**. It requires a committed fixture:
+`tests/fixtures/graph-build-mixed/graphify-out/graph.json`, a small hand-built graph whose
+`links[].confidence` values include all three labels, with `confidence_score` present on
+the `INFERRED` ones.
 
-Expected: the report shows the breakdown by label with the labels verbatim, and no
-`INFERRED` or `AMBIGUOUS` relationship appears anywhere without its label. A run whose
-graph is 100% `EXTRACTED` cannot prove this scenario — it must be run against a mixed
-graph, or it proves nothing.
+```bash
+bash <ext>/scripts/bash/graph-build.sh status --path tests/fixtures/graph-build-mixed
+```
+
+Expected: the breakdown reports all three labels verbatim, with non-zero counts for each.
+
+The fixture is a graph, not a build output — it is committed deliberately as test data and
+is the one graph in this repository that is not derived. Note that a run against a
+100%-`EXTRACTED` graph would pass a naive version of this check while proving nothing,
+which is why the fixture is required rather than optional.
 
 ---
 
@@ -188,6 +256,8 @@ graph, or it proves nothing.
 | 2 | FR-005, FR-006, SC-007 |
 | 3 | FR-008 |
 | 4 | FR-007, FR-011, SC-003 |
+| 4a | FR-007, FR-018 |
+| 4b | FR-015 |
 | 5 | FR-001, FR-002, FR-004, SC-001 |
 | 6 | FR-002 |
 | 7 | FR-013 |
@@ -196,6 +266,7 @@ graph, or it proves nothing.
 | 10 | FR-015, FR-016, SC-006 |
 | 11 | FR-021 |
 | 12 | FR-012, SC-004 |
+| 1, 4a | FR-013a, SC-008 (coverage statement present on every completed build) |
 
 FR-003 (never auto-install) and FR-009 (never reimplement) are verified by inspection:
 no install invocation and no extraction, clustering, or rendering logic may appear in the

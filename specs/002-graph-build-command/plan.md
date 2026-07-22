@@ -25,8 +25,11 @@ pass rather than reconstructing it.
 5.1+ / PowerShell Core 7+, at parity per Principle V. Command logic is Markdown with YAML
 frontmatter, executed by the agent harness.
 
-**Primary Dependencies**: `graphify` CLI `>=0.9.9`, installed by the maintainer and never
-provisioned by this extension (Principle XVI, FR-003). Python is a transitive dependency
+**Primary Dependencies**: `graphify` CLI `>=0.9.9,<0.10.0`, installed by the maintainer
+and never provisioned by this extension (Principle XVI, FR-003). The ceiling is required,
+not cautious: the dependency is pre-1.0 and promises no compatibility between minor
+versions, while every field these contracts read was observed in exactly one version
+(research R14). Python is a transitive dependency
 of graphify and is never invoked directly by this extension.
 
 **Storage**: None owned. Configuration is read from
@@ -78,13 +81,20 @@ recorded; nothing changed between them, and the reasons are stated rather than a
 | XII. Distribution forms | Every claimed form verified before release | DEFERRED to release | DEFERRED |
 | XIII. Proactive extension use | Installed extensions routed to when they apply | PASS | PASS |
 | XIV. Trunk-based delivery | Short-lived branch, PR, green CI | PASS — on `feat/002-graph-build-command` | PASS |
-| XV. A check that cannot fail is not a check | Every gate observed failing before being trusted | PASS | PASS — the three dependency failures and the empty-project case each get a fixture that makes them fail; see [quickstart.md](quickstart.md) |
+| XV. A check that cannot fail is not a check | Every gate observed failing before being trusted | PASS | PASS — every failure path is constructed deterministically rather than raced or assumed: an empty `PATH` for absence, a stub binary for an old version, a deleted `graph.json` for the interrupted state, a pre-created lock for concurrency, and a committed mixed-label fixture for provenance. See [quickstart.md](quickstart.md) |
 | XVI. Graphify is a dependency | Delegate; detect; never vendor; never auto-install | PASS | PASS — R1–R3 fix the delegation boundary at the one the tool declares |
 | XVII. Derived artifacts never committed or hand-edited | `graphify-out/` git-ignored; never edited | PASS — already in `.gitignore` | PASS |
 | XVIII. Provenance survives every hop | Evidence labels preserved unchanged | PASS | PASS — read from `links[].confidence` (R4), reported as a breakdown, never collapsed |
 | XIX. Graph serves the lifecycle | No core command bypassed or gated; no unprompted build | PASS | PASS — R8 places confirmation in the agent layer; the hook is opt-in and declinable |
 
 **Verdict**: No violations. Complexity Tracking is therefore empty and has been removed.
+
+The post-design column was re-evaluated after the critique. One row changed materially:
+XVII, where `full` mode's deletion of `graphify-out/graph.json` is a write into the
+tool-owned directory. It remains PASS because deleting a derived artifact to force
+regeneration is what the principle contemplates, while editing one is what it forbids —
+but the exception is now narrow, documented, and enumerated in the script contract's
+prohibitions rather than left implicit.
 
 Two gates are deferred rather than passed, and the distinction is deliberate: VII and XII
 are *release* gates that cannot be satisfied by a design document, only by an executed
@@ -106,8 +116,10 @@ specs/002-graph-build-command/
 │   ├── extension-manifest.md
 │   ├── build-command.md
 │   └── build-script.md
-└── checklists/
-    └── requirements.md  # Spec quality checklist (16/16)
+├── checklists/
+│   └── requirements.md  # Spec quality checklist (16/16)
+└── critiques/
+    └── critique-2026-07-22.md  # Dual-lens review; its findings are folded in above
 ```
 
 ### Source Code (repository root)
@@ -125,12 +137,15 @@ extension/                          # the shipped llm-wiki-graphify package
 │   │   └── graph-build.sh
 │   └── powershell/
 │       └── graph-build.ps1
-└── config-template.yml             # scope root, exclusions, version floor
+└── config-template.yml             # scope root and supported graphify version range
 
 tests/
 └── fixtures/
     ├── graph-build-empty/          # a project with nothing to examine
-    └── graph-build-code/           # a small code project with known node/edge counts
+    ├── graph-build-code/           # a small code project with known node/edge counts
+    └── graph-build-mixed/          # a committed graph.json carrying all three evidence
+                                    # labels; the scripted build emits only EXTRACTED, so
+                                    # provenance coverage cannot be proven without it
 
 scripts/
 └── test-graph-build.sh             # asserts each failure path actually fails
@@ -156,4 +171,11 @@ reject, for the reason it should reject it.
   likely to produce a graph reported as empty-but-successful.
 - **Phase 1** — [data-model.md](data-model.md), the three contracts under
   [contracts/](contracts/), and [quickstart.md](quickstart.md).
+- **Post-critique** — [critiques/critique-2026-07-22.md](critiques/critique-2026-07-22.md)
+  found four must-address items, three sharing one root cause: the research had verified
+  the happy path and generalised from it. Five further probes became R10–R14 and corrected
+  claims that could not have survived implementation — a `--full` flag that does not
+  exist, a tool that writes to two directories, and a `scope.exclude` setting the tool
+  ignores entirely. Every correction is recorded as evidence in `research.md` rather than
+  as a silent edit.
 - **Phase 2** — `tasks.md`, produced by `/speckit-tasks`, not by this command.

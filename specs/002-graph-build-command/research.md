@@ -214,6 +214,134 @@ directories.
 
 ---
 
+## R10: There is no `--full` flag; a rebuild is forced by removing `graph.json`
+
+**Decision**: `full` mode removes `graphify-out/graph.json` and then invokes
+`graphify update <path>`. This is a documented, narrow exception to "never write into
+`graphify-out/`".
+
+**Evidence**:
+
+```text
+$ graphify update . --full
+error: unknown update option: --full
+
+$ graphify update . --force
+[graphify watch] No code-graph topology changes detected; outputs left untouched.
+
+$ rm -f graphify-out/graph.json && graphify update .
+[graphify watch] Rebuilt: 3 nodes, 3 edges, 1 communities
+```
+
+**Rationale**: `--force` is documented as "overwrite `graph.json` even if the rebuild has
+fewer nodes" — a safety override for refactors that delete code, not a full re-extraction.
+It was observed leaving outputs untouched on an unchanged corpus, so it cannot serve as
+the full-rebuild mode. Removing `graph.json` does force one.
+
+**Constraint on the exception (Principle XVII)**: The extension may delete exactly
+`graphify-out/graph.json`, only in `full` mode, only after confirmation, and only when the
+dependency check has passed. It may not remove, move, or edit any other file under
+`graphify-out/`, and it may not edit `graph.json` — only delete it so the tool writes a new
+one. Deleting a derived artifact to force regeneration is consistent with the principle;
+editing one is what the principle forbids.
+
+**Alternatives considered**: Removing the whole `graphify-out/` directory — rejected
+because it discards the tool's `cache/`, its `manifest.json`, and the dated backups it
+keeps of curated graphs, turning a rebuild into data loss.
+
+**Corrects**: The pre-critique plan asserted a `--full` flag that does not exist. Critique
+finding E1.
+
+---
+
+## R11: The tool writes to the working directory as well as the target path
+
+**Decision**: The script MUST change directory to the resolved scope root before invoking
+the tool, and MUST assert afterwards that no `graphify-out/` was created anywhere else.
+
+**Evidence**: From a directory that is not the target:
+
+```text
+$ cd elsewhere && graphify update ../proj
+[graphify watch] graph.json, graph.html and GRAPH_REPORT.md updated in ../proj/graphify-out
+
+$ ls elsewhere/graphify-out
+manifest.json                    # ← created in the working directory
+
+$ ls proj/graphify-out
+cache  GRAPH_REPORT.md  graph.html  graph.json
+```
+
+The graph goes to the target; a `manifest.json` is left in the working directory.
+
+**Rationale**: `scope.root` is configurable, so a maintainer with a non-default root would
+get a stray `graphify-out/` in their project root — a write FR-015 promises does not
+happen and the report would never mention. Changing directory first collapses the two
+locations into one.
+
+**Corrects**: Critique finding E4. Note that every scenario written before this finding
+used the default root, so none of them would have caught it.
+
+---
+
+## R12: An incomplete graph is detectable by `manifest.json` without `graph.json`
+
+**Decision**: Treat `graphify-out/manifest.json` present with `graphify-out/graph.json`
+absent as the interrupted state. Refuse to refresh from it and require a full build.
+
+**Evidence**: After removing `graph.json` from a completed build, the directory retains
+`manifest.json`, `GRAPH_REPORT.md`, `graph.html`, and `cache/`. `manifest.json` is a
+per-file map — its keys were `src/x.py` and `vendor/v.py` — so it records what the tool
+believed it had processed. That record surviving without the graph it describes is exactly
+the inconsistency an interrupted run leaves behind.
+
+**Locking (FR-020)**: The lock is an atomically-created **directory** under the
+extension's own `.specify/extensions/llm-wiki-graphify/`, never under `graphify-out/` —
+placing it in the tool-owned directory would make the natural implementation a Principle
+XVII violation. A directory is atomic on POSIX and Windows filesystems; a check-then-create
+lock file is not.
+
+**Stale locks**: The lock records the process identifier and a timestamp. A lock whose
+owning process no longer exists is reclaimed with a reported warning. Without this, the
+first crash makes the command permanently unusable — an availability failure introduced by
+a safety mechanism.
+
+**Corrects**: Critique finding E5, which observed that FR-019 and FR-020 specified
+behaviour with no mechanism.
+
+---
+
+## R13: `graphify update` does not honour exclusions
+
+**Decision**: Remove `scope.exclude` from v1. Scope is controlled by `scope.root` alone.
+The report states that no exclusions were applied, rather than claiming any were.
+
+**Evidence**: A project containing `src/x.py` and `vendor/v.py` was built with no
+exclusion configured, and both appeared in the graph:
+
+```text
+$ python3 -c "import json; g=json.load(open('graphify-out/graph.json')); print([n['source_file'] for n in g['nodes']])"
+['src/x.py', 'src/x.py', 'vendor/v.py', 'vendor/v.py']
+```
+
+`graphify update --help` exposes only `--force` and `--no-cluster`. There is no exclusion
+option to pass through.
+
+**Rationale**: The pre-critique design had the extension accept `scope.exclude`, report the
+patterns in the scope summary, and then invoke a tool that ignores them. That is a report
+making a false statement about what was read — worse than having no exclusion feature,
+because the maintainer would believe their vendored code and secrets directory had been
+skipped when they had not.
+
+**Consequence**: The spec's edge case about honouring exclusions is not deliverable in v1
+and is restated as a known limitation. If exclusions matter, the honest path is upstream
+support in graphify, not a claim in our report.
+
+**Corrects**: Critique finding E7, which asked whether exclusion honouring had been
+verified. It had not, and it does not hold.
+
+---
+
 ## Resolved unknowns
 
 | Unknown from Technical Context | Resolved by |
@@ -223,8 +351,36 @@ directories.
 | Where evidence labels live | R4 |
 | How a no-change refresh is detected | R5 |
 | What the output surface is | R6 |
-| What the dependency check must produce | R7 |
+| What the dependency check must produce | R7, R14 |
 | Where confirmation lives | R8 |
 | Where the package lives | R9 |
+| How a full rebuild is forced | R10 |
+| Where the tool actually writes | R11 |
+| How interrupted and concurrent states are detected | R12 |
+| Whether exclusions are honoured | R13 |
+| What version range is safe to depend on | R14 |
 
 No `NEEDS CLARIFICATION` items remain.
+
+---
+
+## R14: The dependency is pre-1.0 and must be pinned with a ceiling
+
+**Decision**: Require `graphify >=0.9.9,<0.10.0`. Raising the ceiling is a deliberate
+re-verification pass that re-runs every probe in this document, not a version-string edit.
+
+**Evidence**: `graphify --version` prints `graphify 0.9.9` — a 0.x release. Under semantic
+versioning, 0.x makes no backward-compatibility promise between minor versions.
+
+**Rationale**: Every contract in this feature rests on behaviour observed in exactly one
+version: the edge array named `links`, the `confidence` vocabulary, the absence of
+`--full`, the wording of the no-change message, the dual write location. A `0.10.0` that
+changed any of them would break installed copies of this extension in other people's
+projects, with no signal until a build silently reported zero relationships.
+
+**Version parsing must fail closed**: If `graphify --version` produces output that does not
+parse as `X.Y.Z`, the command stops with `dependency-too-old` and reports the raw string.
+An unparseable version is never treated as new enough — the format itself is unversioned
+and could change.
+
+**Corrects**: Critique findings E13 and E14.

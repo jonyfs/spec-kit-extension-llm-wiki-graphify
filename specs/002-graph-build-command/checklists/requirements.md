@@ -48,3 +48,21 @@ checked:
   Given/When/Then. Its criterion is unambiguous, so the item is checked with that
   qualification recorded here rather than left implicitly satisfied.
 - 19 acceptance scenarios cover 22 of 23 functional requirements.
+
+### Re-validation after critique (2026-07-22)
+
+The dual-lens critique produced five spec changes: FR-013a (coverage statement), SC-008,
+User Story 1 scenario 8, a rewritten exclusions edge case, and two new Assumptions. Each
+checklist item was re-evaluated against the corrected spec, individually.
+
+All 16 remain checked. Two were at risk and were re-examined closely:
+
+- **"Requirements are testable and unambiguous."** FR-013a is testable — the coverage
+  statement is either present in a report or it is not. It survives.
+- **"Scope is clearly bounded."** This was *strengthened* by the critique rather than
+  merely preserved. The pre-critique spec never said the build was code-only, which meant
+  the boundary existed in the plan and not in the spec — a reader of the spec alone would
+  have expected prose to be interpreted. Now stated in both an Assumption and FR-013a.
+
+Counts after correction: 24 functional requirements, 8 success criteria, 20 acceptance
+scenarios.

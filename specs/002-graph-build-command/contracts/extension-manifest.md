@@ -42,7 +42,7 @@ provides:
     - name: "config.yml"
       template: "config-template.yml"
       required: false
-      description: "Scope root, exclusions, and the supported graphify version floor"
+      description: "Scope root and the supported graphify version range"
 
 hooks:
   after_specify:
@@ -70,6 +70,7 @@ tags:
 | `extension.effect` | `read-write` — the extension causes writes to `graphify-out/`, and claiming `read-only` would be a false statement about what installing it does | VI |
 | Command name | `speckit.llm-wiki-graphify.build`; middle segment equals `extension.id`; shadows no core command | II |
 | `requires.speckit_version` | A specifier with no spaces; never a bare version, never `latest` | I |
+| graphify version range | `>=0.9.9,<0.10.0`, enforced by the script and documented in the README. The ceiling is not optional: the dependency is pre-1.0, so a `0.10.0` may rename `links`, change the `confidence` vocabulary, or drop `update` — each of which breaks installed copies silently (research R14) | XVI |
 | Every referenced path | `commands/build.md` and `config-template.yml` MUST exist in the package | I |
 | `hooks.*.optional` | `true`. A build is expensive and touches every file; it is never automatic | IV, XIX |
 | `hooks.*.priority` | Explicit integer. `20` places it after `agent-context` (`10`) on the same event, so context refresh — which is cheap and unconditional — is offered first | IV |
