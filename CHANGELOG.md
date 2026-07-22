@@ -43,8 +43,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   its graphify dependency, and the four rules that shape it — rather than a
   general-purpose extension template.
 
-### Added
-
 - `trace` reference extension in `template/` — a read-only feature-traceability check
   (`speckit.trace.check`) that reports stories with no tagged tasks, tasks citing
   undefined requirement IDs, duplicate IDs, and surviving `[NEEDS CLARIFICATION]`
