@@ -24,10 +24,10 @@
 - [ ] **VIII. Versioning** — version bumped and `CHANGELOG.md` updated in this change
 - [ ] **IX. English** — every file in this diff is written in English
 - [ ] **XII. Distribution** — if releasing, the published ZIP was installed from its release URL
-- [ ] **XV. Graphify dependency** — graph work is delegated to graphify, and a missing install fails loudly
-- [ ] **XVI. Derived artifacts** — no `graphify-out/` content is committed or hand-edited
-- [ ] **XVII. Provenance** — `EXTRACTED` / `INFERRED` / `AMBIGUOUS` labels are carried through unchanged
-- [ ] **XVIII. Lifecycle** — no core command is bypassed or gated, and no graph build runs unprompted
+- [ ] **XVI. Graphify dependency** — graph work is delegated to graphify, and a missing install fails loudly
+- [ ] **XVII. Derived artifacts** — no `graphify-out/` content is committed or hand-edited
+- [ ] **XVIII. Provenance** — `EXTRACTED` / `INFERRED` / `AMBIGUOUS` labels are carried through unchanged
+- [ ] **XIX. Lifecycle** — no core command is bypassed or gated, and no graph build runs unprompted
 
 ## Verification
 

@@ -1,0 +1,31 @@
+# Deliberately invalid. This fixture exists so the validator is observed FAILING,
+# per constitution Principle XV — a gate that has only ever passed carries no
+# information, because passing and being unreachable produce the same green.
+#
+# Every field below violates exactly one rule. scripts/test-validator.sh asserts
+# the validator reports all of them and exits non-zero.
+schema_version: "1.0"
+
+extension:
+  id: "Broken_Ext"                    # Principle I: must match ^[a-z0-9-]+$
+  name: "Broken Fixture"
+  version: "v1.0"                     # Principle VIII: must be X.Y.Z, no prefix
+  description: "Deliberately invalid fixture used to prove the validator fails"
+  author: "spec-kit-extension-template"
+  repository: "https://github.com/jonyfs/spec-kit-extension-template"
+  license: "MIT"
+
+requires:
+  speckit_version: ">= 0.2.0"         # Principle I: specifier must contain no spaces
+
+provides:
+  commands:
+    - name: "speckit.plan"            # Principle II: shadows a core command, wrong shape
+      file: "commands/does-not-exist.md"   # Principle I: referenced file is absent
+      description: "Invalid on every axis the validator checks"
+
+hooks:
+  after_everything:                   # Principle XI: not a real lifecycle event
+    command: "speckit.plan"
+    optional: true
+    prompt: "Never fires"

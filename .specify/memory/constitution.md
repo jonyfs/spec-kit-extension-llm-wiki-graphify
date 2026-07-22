@@ -1,6 +1,6 @@
 <!--
 SYNC IMPACT REPORT (v2.0.0)
-Version change: 1.6.0 → 2.0.0
+Version change: 1.7.0 → 2.0.0
 Rationale: MAJOR — the project identity is redefined. This repository is no longer
 governed as a general-purpose extension template; it is governed as one concrete
 Spec Kit extension, `llm-wiki-graphify`, which bridges the Spec Kit lifecycle to
@@ -19,10 +19,14 @@ Modified principles:
   Must Be Obvious (scope narrowed to `template/`)
 
 Added principles:
-- XV. Graphify Is a Dependency, Not a Reimplementation
-- XVI. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
-- XVII. Provenance Survives Every Hop
-- XVIII. The Graph Serves the Lifecycle, Never Replaces It
+- XVI. Graphify Is a Dependency, Not a Reimplementation
+- XVII. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
+- XVIII. Provenance Survives Every Hop
+- XIX. The Graph Serves the Lifecycle, Never Replaces It
+
+Note: this amendment was drafted against v1.6.0 and rebased onto v1.7.0, which had
+meanwhile added XV (A Check That Cannot Fail Is Not a Check). The four principles
+added here were renumbered XV–XVIII → XVI–XIX; XV is upstream's and is unchanged.
 
 Added sections:
 - Extension Scope: llm-wiki-graphify
@@ -34,12 +38,35 @@ Templates requiring updates:
 - ✅ .specify/templates/spec-template.md (no constitution-specific slots)
 - ✅ .specify/templates/tasks-template.md (no constitution-specific slots)
 - ✅ .specify/templates/checklist-template.md (no constitution-specific slots)
-- ⚠ README.md (still describes the project as a template; must be rewritten to
-  describe the llm-wiki-graphify extension)
-- ⚠ .gitignore (must ignore `graphify-out/` per Principle XVI)
-- ⚠ .github/pull_request_template.md (checklist must gain rows for XV–XVIII)
-- ✅ CHANGELOG.md (entry required with the amendment commit per Principle VIII)
+- ✅ README.md (rewritten to describe the llm-wiki-graphify extension)
+- ✅ .gitignore (ignores `graphify-out/` per Principle XVII)
+- ✅ .github/pull_request_template.md (checklist rows added for XVI–XIX)
+- ✅ CHANGELOG.md (entry landed with the amendment commit per Principle VIII)
 - ✅ docs/HOOKS.md, docs/PACKAGING.md (unchanged; still accurate)
+
+Follow-up TODOs: none deferred.
+
+--- PREVIOUS REPORT (v1.7.0) ---
+SYNC IMPACT REPORT (v1.7.0)
+Version change: 1.6.0 → 1.7.0
+Rationale: MINOR — added one new principle (XV. A Check That Cannot Fail Is Not a
+Check). No existing principle removed or redefined.
+
+Added principles:
+- XV. A Check That Cannot Fail Is Not a Check
+
+Origin: three defects found in a single session, all the same shape — an
+assurance that existed but was never reached.
+- scripts/install-test.sh could not pass on macOS for any package, and was green
+  in CI because it exited early with "no packages found" before reaching the bug.
+- Tasks T040 and T044 were ticked in a bulk regex; both checks, when actually
+  run, found real defects.
+- SC-001 measured a failure mode three independent rounds could not reproduce.
+
+Templates requiring updates:
+- ✅ .specify/templates/* (constitution-driven gates; no edit)
+- ✅ .github/pull_request_template.md (already forbids ticking an unrun check)
+- ✅ README.md, CHANGELOG.md, docs/ (current)
 
 Follow-up TODOs: none deferred.
 
@@ -485,7 +512,37 @@ Rationale: The gates only mean something if they run before the code is trunk, a
 a PR is the only artifact where a human, the CI, and the review extensions all look
 at the same diff at the same time.
 
-### XV. Graphify Is a Dependency, Not a Reimplementation
+### XV. A Check That Cannot Fail Is Not a Check
+
+Every gate, assertion, and success criterion MUST be observed failing at least once
+against a case it is supposed to catch, before it is trusted. A gate that has only ever
+passed carries no information: passing and being unreachable produce the same green.
+
+Three specific obligations follow.
+
+**A gate with no subject is not passing.** If a check finds nothing to examine, it MUST
+report that distinctly from success, and a reviewer MUST treat "nothing to check" as an
+unmet gate rather than a met one.
+
+**A checkbox is a claim about a check that ran.** Ticking one without having run the
+corresponding verification is a false statement about the change. Bulk-marking a task
+list is how this happens in practice, so tasks MUST be marked individually, as each is
+actually finished.
+
+**A success criterion MUST be falsifiable by a real baseline.** A criterion measuring
+behavior that an unaided comparison already exhibits cannot distinguish success from the
+absence of a problem. When evaluation refutes a criterion, the criterion is rewritten or
+withdrawn and the refutation is recorded — never quietly dropped, and never restated
+until it passes.
+
+Rationale: This project's own tooling failed all three ways in a single session. The
+install-test gate could not pass on any package for a platform reason, and was green in
+CI because it exited before reaching the bug. Two tasks were ticked in a bulk edit, and
+both checks found real defects once run. A success criterion measured a failure mode
+that three independent rounds could not reproduce. Each was invisible for the same
+reason: an assurance nobody had watched fail.
+
+### XVI. Graphify Is a Dependency, Not a Reimplementation
 
 `llm-wiki-graphify` is a bridge. Graph construction, community detection, querying,
 path finding, and wiki generation belong to graphify and MUST be delegated to the
@@ -506,7 +563,7 @@ reimplementation would be stale within a month and would silently disagree with 
 graph the user already trusts; a vendored copy would inherit the maintenance burden
 without the upstream fixes.
 
-### XVI. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
+### XVII. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
 
 Everything graphify writes — `graphify-out/` in its entirety, including `graph.json`,
 `graph.html`, `graph.svg`, `cypher.txt`, the generated wiki, `GRAPH_REPORT.md`, and
@@ -525,7 +582,7 @@ Rationale: A committed graph is stale the moment the next commit lands, and a
 hand-corrected graph destroys the one property that makes the artifact worth
 consulting: that it was mechanically derived from the sources it claims to describe.
 
-### XVII. Provenance Survives Every Hop
+### XVIII. Provenance Survives Every Hop
 
 Graphify labels every relationship with its evidentiary basis: `EXTRACTED` (read
 directly from the source), `INFERRED` (produced by a model, carrying a confidence),
@@ -545,7 +602,7 @@ guessed. An extension that launders a guess into a requirement converts the grap
 from an audit trail into a source of confident fiction, and the resulting defect
 surfaces at implementation time with no trace back to its origin.
 
-### XVIII. The Graph Serves the Lifecycle, Never Replaces It
+### XIX. The Graph Serves the Lifecycle, Never Replaces It
 
 This extension augments `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, and
 `/speckit.implement` with graph context. It MUST NOT bypass, replace, or silently
@@ -573,9 +630,9 @@ The extension's identity is fixed here and any change to it is an amendment.
 |---|---|
 | `extension.id` | `llm-wiki-graphify` |
 | Command namespace | `speckit.llm-wiki-graphify.*` (Principle II) |
-| External dependency | `graphify` CLI/skill, installed by the user (Principle XV) |
+| External dependency | `graphify` CLI/skill, installed by the user (Principle XVI) |
 | Owned directory | `.specify/extensions/llm-wiki-graphify/` (Principle VI) |
-| Derived output | `graphify-out/`, git-ignored, owned by graphify (Principle XVI) |
+| Derived output | `graphify-out/`, git-ignored, owned by graphify (Principle XVII) |
 
 In scope: invoking graphify to build or incrementally update a project graph;
 querying the graph (`query`, `path`, `explain`) and surfacing the result as context

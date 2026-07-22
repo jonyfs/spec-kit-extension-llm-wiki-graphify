@@ -13,15 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   concrete Spec Kit extension, `llm-wiki-graphify`, which bridges the Spec Kit
   lifecycle to the [graphify](https://github.com/safishamsi/graphify) knowledge-graph
   tool, rather than as a general-purpose extension template. Principle III is narrowed
-  to the `template/` reference extension. Four principles are added: XV (graphify is a
-  dependency, not a reimplementation), XVI (derived graph artifacts are never committed
-  or hand-edited), XVII (provenance labels survive every hop), and XVIII (the graph
+  to the `template/` reference extension. Four principles are added: XVI (graphify is a
+  dependency, not a reimplementation), XVII (derived graph artifacts are never committed
+  or hand-edited), XVIII (provenance labels survive every hop), and XIX (the graph
   serves the lifecycle, never replaces it). A new "Extension Scope: llm-wiki-graphify"
   section fixes the extension id, command namespace, owned directories, and the
   explicit out-of-scope list.
-- Pull request template carries checklist rows for Principles XV–XVIII, and the
+- Pull request template carries checklist rows for Principles XVI–XIX, and the
   Principle III row is rescoped.
-- `.gitignore` excludes `graphify-out/` per Principle XVI.
+- `.gitignore` excludes `graphify-out/` per Principle XVII.
 - `README.md` rewritten to describe the `llm-wiki-graphify` extension — its scope,
   its graphify dependency, and the four rules that shape it — rather than a
   general-purpose extension template.
@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   markers. Ships bash and PowerShell at parity and exists to be copied as the starting
   point for a new extension.
 
+- `scripts/test-validator.sh` and `tests/fixtures/invalid-extension/` — assert that
+  the manifest validator rejects a package violating six rules, and rejects it for the
+  right reasons. Constitution Principle XV: a gate that has only ever passed carries no
+  information, because passing and being unreachable produce identical output.
+
 ### Fixed
 
 - `scripts/install-test.sh` could not pass on macOS for any package. The extension id
@@ -41,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `specify extension list | grep -q` under `set -o pipefail` reported the *matching*
   case as a failure, because `grep -q` exits at first match and `specify` takes SIGPIPE.
   Both were invisible while the repository had no extension to test.
+- `.specify/bridge-events.jsonl` was tracked in git despite being gitignored — adding a
+  path to `.gitignore` does not untrack a file already committed. It is a runtime audit
+  log the bridge extension appends to on every run.
 
 - `sdd-master` skill (`.claude/skills/sdd-master/`) — proactive expertise on
   spec-driven development and Spec Kit. A router holding the four-band effort

@@ -1,3 +1,0 @@
-{"timestamp":"2026-07-22T02:49:30Z","action":"guard","status":"allow","feature_directory":"","decision":"allow","reason":"","actor":"unknown","checked_action":"speckit.plan"}
-{"timestamp":"2026-07-22T02:55:20Z","action":"guard","status":"allow","feature_directory":"","decision":"allow","reason":"","actor":"unknown","checked_action":"speckit.tasks"}
-{"timestamp":"2026-07-22T02:57:33Z","action":"guard","status":"allow","feature_directory":"","decision":"allow","reason":"","actor":"unknown","checked_action":"speckit.implement"}

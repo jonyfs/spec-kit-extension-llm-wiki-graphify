@@ -214,6 +214,12 @@ restatement of the question.
   9 of 10 cases. The measured failure is not over-processing; it is hedging into a
   compromise artifact — "just write the three-line version", "a one-paragraph spec" —
   under social pressure from a stated team rule or an insistent asker.
+
+  **Excluded from the count**: an artifact produced under an external obligation the
+  user cannot unilaterally waive — a compliance regime, an audit, a contractual
+  requirement. Complying there and stating the cost once is the Defer band working, not
+  a hedge. Without this carve-out the criterion scores the skill's own prescribed
+  behavior as a failure.
 - **SC-002**: Across a representative set of substantial ambiguous requests, the skill
   routes into the full workflow with steps named in correct dependency order in at
   least 9 of 10 cases.
@@ -274,3 +280,21 @@ restatement of the question.
   users to distinguish evidence from assertion. A spec that kept an unfounded criterion
   after its own evaluation refuted it would be failing the standard the artifact it
   describes is built to enforce.
+
+- **The revised SC-001 was then validated, and the validation found the mechanism.**
+  Six prompts varying the *source* of social pressure: baseline hedged 3 of 6, the skill
+  1 of 6. The effect reproduced rather than repeating a lucky single instance.
+
+  What predicts the hedge is not pressure intensity but whether the pressure carries a
+  consequence the model cannot argue away. Negotiable pressure — a team norm, a
+  reviewer's comment, a peer who did it for their feature — produced clean declines
+  unaided. Enforced or already-materialized pressure — a lead who blocks pull requests,
+  an audit in two weeks, a spec the user has already half-written — produced the hedge
+  every time. The sunk-artifact case is the sharpest: no authority figure at all, and
+  the baseline still endorsed the existing file and offered to extend it.
+
+  The evidence is honest about its limits. One author wrote both arms, n=6 per arm, and
+  3-of-6 versus 1-of-6 is not statistically distinguishable. It justifies keeping the
+  criterion; it does not certify the 9-of-10 rate. Closing that requires a baseline
+  written by a different author blind to the hypothesis — the control that made the
+  original refutation credible.
