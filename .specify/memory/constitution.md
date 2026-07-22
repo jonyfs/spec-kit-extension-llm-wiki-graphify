@@ -1,4 +1,52 @@
 <!--
+SYNC IMPACT REPORT (v2.0.0)
+Version change: 1.7.0 → 2.0.0
+Rationale: MAJOR — the project identity is redefined. This repository is no longer
+governed as a general-purpose extension template; it is governed as one concrete
+Spec Kit extension, `llm-wiki-graphify`, which bridges the Spec Kit lifecycle to
+the graphify knowledge-graph tool (safishamsi/graphify, popularized as "LLM Wiki").
+Principle III is narrowed from the whole repository to the `template/` reference
+extension only — a backward-incompatible change to an existing principle's scope,
+which requires a MAJOR bump on its own.
+
+Source of the domain requirements:
+- https://medium.com/data-science-in-your-pocket/andrej-karparthys-llm-wiki-codes-graphify-b73bec5d87ea
+- The installed `graphify` skill (`~/.claude/skills/graphify/SKILL.md`), read for
+  the actual command surface, output layout, and provenance vocabulary.
+
+Modified principles:
+- III. Template Placeholders Must Be Obvious → III. Reference-Extension Placeholders
+  Must Be Obvious (scope narrowed to `template/`)
+
+Added principles:
+- XVI. Graphify Is a Dependency, Not a Reimplementation
+- XVII. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
+- XVIII. Provenance Survives Every Hop
+- XIX. The Graph Serves the Lifecycle, Never Replaces It
+
+Note: this amendment was drafted against v1.6.0 and rebased onto v1.7.0, which had
+meanwhile added XV (A Check That Cannot Fail Is Not a Check). The four principles
+added here were renumbered XV–XVIII → XVI–XIX; XV is upstream's and is unchanged.
+
+Added sections:
+- Extension Scope: llm-wiki-graphify
+
+Removed sections: none
+
+Templates requiring updates:
+- ✅ .specify/templates/plan-template.md (constitution-driven gate; no edit)
+- ✅ .specify/templates/spec-template.md (no constitution-specific slots)
+- ✅ .specify/templates/tasks-template.md (no constitution-specific slots)
+- ✅ .specify/templates/checklist-template.md (no constitution-specific slots)
+- ✅ README.md (rewritten to describe the llm-wiki-graphify extension)
+- ✅ .gitignore (ignores `graphify-out/` per Principle XVII)
+- ✅ .github/pull_request_template.md (checklist rows added for XVI–XIX)
+- ✅ CHANGELOG.md (entry landed with the amendment commit per Principle VIII)
+- ✅ docs/HOOKS.md, docs/PACKAGING.md (unchanged; still accurate)
+
+Follow-up TODOs: none deferred.
+
+--- PREVIOUS REPORT (v1.7.0) ---
 SYNC IMPACT REPORT (v1.7.0)
 Version change: 1.6.0 → 1.7.0
 Rationale: MINOR — added one new principle (XV. A Check That Cannot Fail Is Not a
@@ -202,13 +250,24 @@ Templates requiring updates:
 Follow-up TODOs: none deferred.
 -->
 
-# Spec Kit Extension Template Constitution
+# LLM Wiki Graphify Extension Constitution
 
-This project is a **template for creating GitHub Spec Kit extensions**. Its output
-is an extension package — a manifest, commands, optional scripts and config — that
-installs into any Spec Kit project via `specify extension add`. Upstream reference:
-`github/spec-kit`, directory `extensions/` (`EXTENSION-API-REFERENCE.md`,
-`EXTENSION-DEVELOPMENT-GUIDE.md`, `EXTENSION-PUBLISHING-GUIDE.md`).
+This project builds and publishes **one GitHub Spec Kit extension**,
+`llm-wiki-graphify`. The extension bridges the Spec Kit lifecycle to
+[graphify](https://github.com/safishamsi/graphify) — the knowledge-graph tool
+popularized as "LLM Wiki" — so that specs, plans, and tasks are written against a
+navigable graph of the project instead of against ad-hoc file searches.
+
+The deliverable is an extension package — a manifest, commands, scripts, and config —
+that installs into any Spec Kit project via `specify extension add`. Upstream
+reference for the package format: `github/spec-kit`, directory `extensions/`
+(`EXTENSION-API-REFERENCE.md`, `EXTENSION-DEVELOPMENT-GUIDE.md`,
+`EXTENSION-PUBLISHING-GUIDE.md`).
+
+This repository was forked from `jonyfs/spec-kit-extension-template`. It retains the
+template's engineering discipline and its `template/` reference extension, but it is
+no longer governed as a general-purpose template: every principle below binds the
+`llm-wiki-graphify` extension unless it names a narrower scope.
 
 ## Core Principles
 
@@ -237,17 +296,23 @@ nor a command already registered by another extension.
 Rationale: Command registration is a flat namespace across every installed
 extension. Collisions silently overwrite a user's working workflow.
 
-### III. Template Placeholders Must Be Obvious
+### III. Reference-Extension Placeholders Must Be Obvious
 
-Every value an author is expected to change MUST be marked in place with a
-`# CUSTOMIZE:` comment (or `# REVIEW:` where the default is usually acceptable), and
-MUST use an unmistakable placeholder value (`my-extension`, `Your Name`,
-`https://github.com/your-org/...`). No template file may ship a plausible-looking
-real value that an author could leave in by accident. A generated extension MUST NOT
-be publishable until every `CUSTOMIZE` marker is resolved.
+This principle binds the `template/` reference extension carried in this repository,
+not the shipped `llm-wiki-graphify` package. Inside `template/`, every value an
+author is expected to change MUST be marked in place with a `# CUSTOMIZE:` comment
+(or `# REVIEW:` where the default is usually acceptable), and MUST use an
+unmistakable placeholder value (`my-extension`, `Your Name`,
+`https://github.com/your-org/...`). No file under `template/` may ship a
+plausible-looking real value that an author could leave in by accident.
 
-Rationale: The single biggest failure mode of a template is shipping the template's
-own identity to a registry. Placeholders that look wrong get fixed.
+The shipped `llm-wiki-graphify` package is the inverse case: it MUST contain no
+placeholder markers at all. A `CUSTOMIZE` marker surviving into the released package
+is a release blocker.
+
+Rationale: The reference extension exists to be copied, so its unset values must look
+wrong on sight. The shipped extension exists to be installed, so an unset value in it
+is simply a bug that reaches a stranger's project.
 
 ### IV. Hooks Are Opt-In by Default
 
@@ -477,6 +542,109 @@ both checks found real defects once run. A success criterion measured a failure 
 that three independent rounds could not reproduce. Each was invisible for the same
 reason: an assurance nobody had watched fail.
 
+### XVI. Graphify Is a Dependency, Not a Reimplementation
+
+`llm-wiki-graphify` is a bridge. Graph construction, community detection, querying,
+path finding, and wiki generation belong to graphify and MUST be delegated to the
+user's own installation by invoking it; this extension MUST NOT reimplement AST
+extraction, clustering, embedding, or rendering, and MUST NOT vendor graphify's
+source.
+
+The dependency MUST be explicit and checked, never assumed. Every command that
+shells out MUST first detect whether graphify is available and, when it is not,
+stop with a message naming the missing dependency and how to install it — never a
+silent fallback, a partial result, or a stub graph presented as real output. The
+supported invocation surface MUST be documented in the extension README and pinned
+to a stated graphify version, and any command-line flag this extension relies on MUST
+have been verified against that version rather than recalled.
+
+Rationale: Graphify is an actively developed tool with its own release cadence. A
+reimplementation would be stale within a month and would silently disagree with the
+graph the user already trusts; a vendored copy would inherit the maintenance burden
+without the upstream fixes.
+
+### XVII. Derived Graph Artifacts Are Never Committed and Never Hand-Edited
+
+Everything graphify writes — `graphify-out/` in its entirety, including `graph.json`,
+`graph.html`, `graph.svg`, `cypher.txt`, the generated wiki, `GRAPH_REPORT.md`, and
+`cache/` — is a derived artifact. It MUST be listed in `.gitignore`, MUST NOT be
+committed to this repository, and MUST NOT be written into a consuming project
+outside the directory graphify itself owns.
+
+No derived artifact may be edited by hand, by this extension, or by an agent acting
+on its behalf. A wrong edge, a wrong cluster, or a wrong wiki article is fixed at the
+source — the code, the docs, or the extraction command — and the graph is rebuilt
+(`--update` for an incremental pass). Correcting the output directly produces a graph
+that no longer matches what a rebuild would produce, which is worse than a graph that
+is visibly wrong.
+
+Rationale: A committed graph is stale the moment the next commit lands, and a
+hand-corrected graph destroys the one property that makes the artifact worth
+consulting: that it was mechanically derived from the sources it claims to describe.
+
+### XVIII. Provenance Survives Every Hop
+
+Graphify labels every relationship with its evidentiary basis: `EXTRACTED` (read
+directly from the source), `INFERRED` (produced by a model, carrying a confidence),
+and `AMBIGUOUS` (flagged for human review). Any command, prompt, or artifact this
+extension produces MUST carry those labels through unchanged wherever it reports a
+relationship, and MUST NOT collapse them into undifferentiated prose.
+
+An `INFERRED` or `AMBIGUOUS` relationship MUST NOT be written into a spec's
+requirements, a plan's design decisions, or a task's acceptance criteria as though it
+were established fact. It MAY be used to raise a question, to propose a
+`[NEEDS CLARIFICATION]` marker, or to direct a human to the source — and when it is,
+the label and the confidence MUST appear alongside it. When a graph-derived claim
+contradicts the code, the code wins and the graph is rebuilt.
+
+Rationale: The value of the graph is that it distinguishes what it read from what it
+guessed. An extension that launders a guess into a requirement converts the graph
+from an audit trail into a source of confident fiction, and the resulting defect
+surfaces at implementation time with no trace back to its origin.
+
+### XIX. The Graph Serves the Lifecycle, Never Replaces It
+
+This extension augments `/speckit.specify`, `/speckit.plan`, `/speckit.tasks`, and
+`/speckit.implement` with graph context. It MUST NOT bypass, replace, or silently
+reorder any of them, MUST NOT write to `spec.md`, `plan.md`, or `tasks.md` — those
+files belong to the core commands and to the user — and MUST NOT gate a core command
+on the graph being present or fresh.
+
+Every lifecycle integration ships as a hook that obeys Principle IV: `optional: true`
+by default, with a prompt and a description. Graph construction is expensive and
+touches every file in the project, so it MUST NOT be triggered automatically by a
+lifecycle event; the user asks for it, or it does not happen. When no graph exists,
+every command MUST degrade to stating that fact and offering to build one — never
+block, never build unasked.
+
+Rationale: A user installs this extension expecting better context, not a different
+workflow. An augmentation that can stall the lifecycle when its optional dependency
+is missing or stale is a liability, and one that rewrites the core artifacts violates
+Principle VI in the place where it costs the most.
+
+## Extension Scope: llm-wiki-graphify
+
+The extension's identity is fixed here and any change to it is an amendment.
+
+| Field | Value |
+|---|---|
+| `extension.id` | `llm-wiki-graphify` |
+| Command namespace | `speckit.llm-wiki-graphify.*` (Principle II) |
+| External dependency | `graphify` CLI/skill, installed by the user (Principle XVI) |
+| Owned directory | `.specify/extensions/llm-wiki-graphify/` (Principle VI) |
+| Derived output | `graphify-out/`, git-ignored, owned by graphify (Principle XVII) |
+
+In scope: invoking graphify to build or incrementally update a project graph;
+querying the graph (`query`, `path`, `explain`) and surfacing the result as context
+for a Spec Kit command; exposing the generated wiki and `GRAPH_REPORT.md` to the
+agent; and registering opt-in lifecycle hooks that offer these at the moments they
+help.
+
+Out of scope, and MUST NOT be added without an amendment: any graph construction not
+delegated to graphify; any persistent store of the graph inside `.specify/`; any
+embedding or vector database; any modification of `spec.md`, `plan.md`, or
+`tasks.md`; and any automatic, unprompted graph build.
+
 ## Continuous Integration Gates
 
 CI is defined in `.github/workflows/ci.yml` and runs on every push to `main`, every
@@ -566,8 +734,10 @@ A pinned SHA makes an update a diffable, auditable operation instead of guesswor
 
 ## Development Workflow & Quality Gates
 
-1. **Research first.** Before adding or changing template structure, read the
-   current upstream `extensions/` guides. Copying a stale pattern is a defect.
+1. **Research first.** Before adding or changing extension structure, read the
+   current upstream `extensions/` guides; before relying on a graphify command or
+   flag, read the installed graphify skill or its upstream documentation. Copying a
+   stale pattern, or a recalled flag, is a defect.
 2. **Spec-driven.** Non-trivial changes go through `/speckit.specify` →
    `/speckit.plan` → `/speckit.tasks` → `/speckit.implement`. The Constitution Check
    gate in `plan-template.md` is evaluated against the principles above.
@@ -591,8 +761,8 @@ This constitution supersedes all other conventions in this repository. Where a
 general guideline and a principle here conflict, the principle wins.
 
 **Amendments** MUST be proposed as a pull request that states the principle added,
-modified, or removed, the rationale, and the migration impact on extensions already
-generated from this template. Amendments take effect on merge.
+modified, or removed, the rationale, and the migration impact on projects that have
+already installed `llm-wiki-graphify`. Amendments take effect on merge.
 
 **Versioning** of this document follows semantic versioning: MAJOR for removing or
 redefining a principle in a backward-incompatible way, MINOR for adding a principle
@@ -607,4 +777,4 @@ plan's Complexity Tracking section or removed.
 Runtime development guidance lives in `CLAUDE.md` and the active feature's
 `plan.md`; neither may contradict this constitution.
 
-**Version**: 1.7.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-21
+**Version**: 2.0.0 | **Ratified**: 2026-07-21 | **Last Amended**: 2026-07-22

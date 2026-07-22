@@ -30,3 +30,6 @@ Thumbs.db
 # Editors
 .idea/
 *.swp
+
+# Derived graphify artifacts (Constitution Principle XVII) — never committed
+graphify-out/
