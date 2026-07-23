@@ -231,14 +231,20 @@ if install_into "$P3" "$PACKAGE"; then
             pass "missing config is silent — no warning about the absent file"
         fi
 
-        # Config raises the floor — proves the value was read.
-        printf 'graphify:\n  min_version: "99.0.0"\n' >"${ext3}/config.yml"
-        floor_out="$(cd "$P3" && "$BASH_BIN" "$installed_sh3" check 2>/dev/null)"
-        floor_code=$?
-        if [ "$floor_code" -eq 5 ] && printf '%s' "$floor_out" | grep -q 'dependency-too-old'; then
-            pass "config raises the floor — proves config.yml was read"
+        # Config raises the floor — proves the value was read. Needs graphify: with
+        # it absent the dependency check reports missing before it can compare
+        # versions, so there is nothing to prove.
+        if [ "$GRAPHIFY_PRESENT" -eq 1 ]; then
+            printf 'graphify:\n  min_version: "99.0.0"\n' >"${ext3}/config.yml"
+            floor_out="$(cd "$P3" && "$BASH_BIN" "$installed_sh3" check 2>/dev/null)"
+            floor_code=$?
+            if [ "$floor_code" -eq 5 ] && printf '%s' "$floor_out" | grep -q 'dependency-too-old'; then
+                pass "config raises the floor — proves config.yml was read"
+            else
+                fail "config raises the floor" "exit ${floor_code}"
+            fi
         else
-            fail "config raises the floor" "exit ${floor_code}"
+            skip "config raises the floor" "graphify not installed"
         fi
 
         # Malformed config stops distinctly.

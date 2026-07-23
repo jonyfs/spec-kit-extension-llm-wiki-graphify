@@ -170,3 +170,12 @@ location". The backup *is* the CLI's own, so it is explicitly carved out.
 
 One dependency is surfaced rather than resolved: R4's note that the script may not yet read
 a project `config.yml`. The plan treats it as a prerequisite for US3, not as hidden scope.
+
+---
+
+## R7: A full validation run is fast
+
+**Measured**: 4 seconds wall clock for a complete run against the real package — three
+throwaway `specify init` projects, three installs, one graph build, config tests, and
+removal. SC-003's budget is 5 minutes; the run uses ~1.3% of it. No performance work is
+warranted.
