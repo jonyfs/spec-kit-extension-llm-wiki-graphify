@@ -68,10 +68,10 @@ several gates mean.
 |---|---|---|
 | I. Manifest is the contract | — | N/A — no manifest changes |
 | II. Namespaced commands | — | N/A — no new commands |
-| III. Reference-extension placeholders | — | N/A — touches neither `template/` nor `extension/` |
+| III. Reference-extension placeholders | Config read adds no placeholders | PASS — the one `extension/` change is additive and placeholder-free |
 | IV. Hooks opt-in | — | N/A — declares no hooks |
 | V. Script parity | Harness runs on both platforms | PASS — Linux and Windows CI, mirroring the feature-002 arrangement |
-| VI. Additive, non-destructive | Writes confined; no git operations | PASS — writes only inside the throwaway project (SC-004) |
+| VI. Additive, non-destructive | Writes confined; the config read only adds behaviour | PASS — the script change is additive (missing config still defaults); the harness writes only inside its throwaway project (SC-004) |
 | VII. Install-test before publish | This feature *is* the mechanization of VII | PASS — and it is what lets VII finally be marked satisfied (SC-006) |
 | VIII. Versioning | `CHANGELOG.md` entry | PASS — a root changelog entry lands with the harness |
 | IX. English | — | PASS |
@@ -86,7 +86,9 @@ several gates mean.
 | XVIII. Provenance | — | PASS — the harness asserts labels survive; it does not alter them |
 | XIX. Graph serves the lifecycle | — | N/A |
 
-**Verdict**: No violations. Complexity Tracking is empty and removed.
+**Verdict**: No violations. Complexity Tracking is empty and removed. The feature is
+verification plus one small additive product change (the config read), decided above under
+option 1.
 
 The one gate worth dwelling on is **XV applied to the harness itself**. A validation harness
 that has only ever run against a working package proves nothing — it could be a script that
