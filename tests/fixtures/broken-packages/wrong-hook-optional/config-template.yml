@@ -1,0 +1,34 @@
+---
+# Configuration for the llm-wiki-graphify extension.
+#
+# This file is optional. Every value below is the default, so deleting the file
+# changes nothing. It is installed to
+# .specify/extensions/llm-wiki-graphify/config.yml
+
+scope:
+  # Directory the build examines, relative to the project root.
+  # Must resolve inside the project root; a path escaping it is rejected.
+  root: "."
+
+  # NOTE: there is deliberately no `exclude` setting.
+  #
+  # graphify offers no exclusion mechanism — a vendored directory inside the
+  # scope root IS read and DOES enter the graph. Accepting exclusion patterns
+  # here and reporting them as applied would be a false statement about what was
+  # read, which is worse than having no exclusion feature at all. Narrow the
+  # scope with `root` instead.
+
+graphify:
+  # Supported version range for the graphify CLI, checked before every build.
+  #
+  # The ceiling is not caution. graphify is pre-1.0, so it promises no
+  # compatibility between minor versions, while this extension reads fields
+  # observed in exactly one version: the edge array named `links`, the
+  # `confidence` vocabulary, and the wording of the no-change message. A 0.10.0
+  # could change any of them and break this extension silently.
+  min_version: "0.9.9"
+  max_version: "0.10.0"
+
+report:
+  # How many communities to name in the build report. 0 disables the section.
+  show_top_communities: 5

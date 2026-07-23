@@ -93,9 +93,18 @@ against it before the fixture is committed.
 
 | Fixture | Breaks | Scenario that must fail |
 |---|---|---|
-| `missing-command-file/` | manifest names `commands/build.md`; the file is deleted | 1 (install/register) or 5 |
-| `wrong-command-name/` | command name does not match `speckit.{id}.{command}` | 1 |
-| `missing-script/` | frontmatter references a script absent from the package | 5 |
+| `missing-command-file/` | manifest names `commands/build.md`; the file is deleted | install (specify rejects it) |
+| `wrong-command-name/` | command name does not match `speckit.{id}.{command}` | install (specify rejects it) |
+| `missing-script/` | frontmatter references a script absent from the package | install (specify rejects it) |
+| `wrong-hook-optional/` | hook declared `optional: false` | **hook aggregated** — installs cleanly, fails the post-install assertion |
+
+**Finding during implementation**: `specify extension add` validates more strictly than
+`scripts/validate-extension.py` — it rejects all three manifest-level breaks at install
+time, so they never reach a later scenario. That still satisfies "the harness can fail
+against a broken package", but it left the *post-install* assertions (hook aggregation,
+prose registration) never observed failing. The `wrong-hook-optional/` fixture was added to
+close that: it installs cleanly and fails the hook-aggregation assertion specifically, so a
+post-install check is proven able to fail (SC-002).
 
 A fixture that does not make a real scenario fail is not proving anything and must not be
 added.
