@@ -1,0 +1,49 @@
+---
+schema_version: "1.0"
+
+extension:
+  id: "llm-wiki-graphify"
+  name: "LLM Wiki Graphify"
+  version: "1.0.0"
+  description: >-
+    Builds and refreshes a graphify knowledge graph of the project, and makes
+    it available to the Spec Kit workflow. Delegates all graph construction to
+    the maintainer's own graphify installation.
+  author: "jonyfs"
+  repository: "https://github.com/jonyfs/spec-kit-extension-llm-wiki-graphify"
+  license: "MIT"
+  homepage: "https://github.com/jonyfs/spec-kit-extension-llm-wiki-graphify"
+  category: "context"
+  effect: "read-write"
+
+requires:
+  speckit_version: ">=0.2.0"
+
+provides:
+  commands:
+    - name: "speckit.llm-wiki-graphify.build"
+      file: "commands/build.md"
+      description: >-
+        Verify the graphify installation, report what a build would examine,
+        and — once confirmed — build or refresh the project knowledge graph.
+  config:
+    - name: "config.yml"
+      template: "config-template.yml"
+      required: false
+      description: "Scope root and the supported graphify version range"
+
+hooks:
+  after_specify:
+    command: "speckit.llm-wiki-graphify.build"
+    optional: true
+    priority: 20
+    prompt: "Build or refresh the project knowledge graph now?"
+    description: >-
+      Offers a graph build after a new specification is written, so planning
+      has current project context. Declining has no effect on the
+      specification. Never builds without confirmation.
+
+tags:
+  - "context"
+  - "knowledge-graph"
+  - "graphify"

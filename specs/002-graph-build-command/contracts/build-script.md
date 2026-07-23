@@ -56,7 +56,7 @@ never suppressed, never re-worded (FR-014).
 | 6 | `already-running` | Another build holds the lock (FR-020) |
 | 7 | `interrupted-state` | A previous run left an incomplete graph (FR-019) |
 | 8 | `failed` | The tool ran and reported failure |
-| 2 | usage error | Unknown argument, or `build` without `--confirmed` |
+| 2 | usage error / `config-invalid` | Unknown argument, `build` without `--confirmed`, or a malformed `config.yml` |
 
 Distinct codes exist so a test can assert *which* failure happened. Collapsing them into
 `1` would let a test for "missing dependency" pass against a merely empty project — a

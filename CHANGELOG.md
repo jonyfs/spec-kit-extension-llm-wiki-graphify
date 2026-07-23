@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `scripts/validate-installed-extension.sh` — installs the `llm-wiki-graphify` package into
+  a throwaway Spec Kit project via the real `specify` CLI, exercises the registered command
+  and the aggregated hook, tests the three config states, removes the extension, and confirms
+  nothing is left behind. Mechanizes Constitution Principle VII: the gate can now be marked
+  satisfied without a manual step. Three-state result model (PASS / FAIL / SKIP), and four
+  broken-package fixtures that prove the harness can fail.
+- The build command now reads a project `config.yml` (`scope.root`, `graphify.min_version`,
+  `graphify.max_version`), closing the gap where the manifest declared config the script
+  never read. A malformed file stops with `config-invalid` rather than defaulting silently.
+- CI job `installed-validation`, which runs the harness and then proves it fails against
+  every broken fixture.
+
+### Added
+
 - **`llm-wiki-graphify` extension package** in `extension/` — the first shipped extension of
   this repository. `speckit.llm-wiki-graphify.build` verifies the maintainer's graphify
   installation, reports what a build would examine, waits for confirmation, and then builds

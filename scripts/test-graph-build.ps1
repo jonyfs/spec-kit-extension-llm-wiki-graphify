@@ -221,6 +221,34 @@ foreach ($label in @('EXTRACTED', 'INFERRED', 'AMBIGUOUS')) {
     }
 }
 
+
+Write-Host "`nConfiguration"
+
+$cfgRoot = Join-Path $Work 'cfg'
+$null = New-Item -ItemType Directory -Path (Join-Path $cfgRoot 'only/src') -Force
+$null = New-Item -ItemType Directory -Path (Join-Path $cfgRoot '.specify/extensions/llm-wiki-graphify') -Force
+Set-Content -Path (Join-Path $cfgRoot 'only/src/o.py') -Value "def only():`n    return 1"
+Set-Content -Path (Join-Path $cfgRoot '.specify/extensions/llm-wiki-graphify/config.yml') -Value "scope:`n  root: only"
+$cfg = Invoke-Target -Arguments @('scope') -WorkingDirectory $cfgRoot
+$cfgRootField = Get-Field $cfg.Out 'root'
+if ($cfgRootField -and $cfgRootField.EndsWith('only')) {
+    Pass 'config scope.root narrows the reported root'
+} else {
+    Fail 'config scope.root narrows the reported root' "root was $cfgRootField"
+}
+
+$cfgFloor = Join-Path $Work 'cfgfloor'
+$null = New-Item -ItemType Directory -Path (Join-Path $cfgFloor '.specify/extensions/llm-wiki-graphify') -Force
+Set-Content -Path (Join-Path $cfgFloor '.specify/extensions/llm-wiki-graphify/config.yml') -Value "graphify:`n  min_version: `"99.0.0`""
+Assert-Run -Name 'config raises the version floor, tripping dependency-too-old' -WantCode 5 `
+    -WantOutcome 'dependency-too-old' -Arguments @('check') -In $cfgFloor
+
+$cfgBad = Join-Path $Work 'cfgbad'
+$null = New-Item -ItemType Directory -Path (Join-Path $cfgBad '.specify/extensions/llm-wiki-graphify') -Force
+Set-Content -Path (Join-Path $cfgBad '.specify/extensions/llm-wiki-graphify/config.yml') -Value "scope`n  root no colon here"
+Assert-Run -Name 'malformed config stops with config-invalid' -WantCode 2 `
+    -WantOutcome 'config-invalid' -Arguments @('check') -In $cfgBad
+
 Remove-Item -Recurse -Force $Work -ErrorAction SilentlyContinue
 
 Write-Host "`n$($script:Passed) passed, $($script:Failed) failed"

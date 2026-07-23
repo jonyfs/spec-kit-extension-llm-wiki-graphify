@@ -110,6 +110,12 @@ are *release* gates that cannot be satisfied by a design document, only by an ex
 install-run-remove cycle against a built package. Recording them as PASS here would be
 exactly the empty green Principle XV describes.
 
+**Update (feature 003):** Principle VII is now mechanized by
+`scripts/validate-installed-extension.sh`, which installs the package into a throwaway
+project, exercises the command and hook, and removes it — run in CI on every pull request.
+VII can be marked satisfied on that harness alone, without a manual step. XII (published
+distribution forms) remains a release-time activity.
+
 ## Project Structure
 
 ### Documentation (this feature)

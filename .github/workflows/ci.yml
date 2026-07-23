@@ -164,3 +164,40 @@ jobs:
         # differ. This job is where the claim is actually settled.
         shell: pwsh
         run: ./scripts/test-graph-build.ps1
+
+  installed-validation:
+    name: Installed-extension validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install specify and graphify at pinned versions
+        run: |
+          pip install uv
+          uv tool install specify-cli --from git+https://github.com/github/spec-kit.git
+          uv tool install 'graphifyy>=0.9.9,<0.10.0'
+          specify --version
+          graphify --version
+
+      - name: Validate the extension as installed
+        # Mechanizes Constitution Principle VII: install into a real throwaway Spec
+        # Kit project, exercise the command and hook, test config, remove, and
+        # confirm nothing is left behind. This is the gate that lets VII finally be
+        # marked satisfied without a manual step.
+        run: bash scripts/validate-installed-extension.sh
+
+      - name: Prove the harness can fail against broken packages
+        # Principle XV: a harness that has only ever passed proves nothing. Each
+        # broken fixture must make the harness report FAIL.
+        run: |
+          for f in missing-command-file wrong-command-name missing-script wrong-hook-optional; do
+            if bash scripts/validate-installed-extension.sh --package "tests/fixtures/broken-packages/$f" >/dev/null 2>&1; then
+              echo "harness PASSED against broken fixture $f — that is a defect in the harness"
+              exit 1
+            fi
+            echo "harness correctly FAILed against $f"
+          done
