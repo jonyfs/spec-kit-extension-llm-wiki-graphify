@@ -58,6 +58,111 @@ ARG_CONFIRMED=0
 LOCK_HELD=0
 
 # ---------------------------------------------------------------------------
+# Configuration
+#
+# Read from ${EXT_DIR}/config.yml when present. The file is optional: a missing
+# file is silent and defaulted (config is required: false). A malformed file is
+# NOT silent — it stops with a distinct outcome, because falling back to defaults
+# would run the build in a way the maintainer did not configure and could not see.
+#
+# Precedence: an explicit command-line argument wins over the config file, which
+# wins over the compiled defaults. A config value is applied only where the
+# argument still holds its default, so `--path X` is never overridden by config.
+# ---------------------------------------------------------------------------
+
+load_config() {
+    local config="${EXT_DIR}/config.yml"
+    [ -f "$config" ] || return 0
+
+    local parsed
+    parsed="$(
+        python3 - "$config" <<'PY'
+import sys
+
+try:
+    import yaml
+except ImportError:
+    yaml = None
+
+path = sys.argv[1]
+try:
+    with open(path, encoding="utf-8") as handle:
+        text = handle.read()
+except OSError as exc:
+    print(f"__ERROR__ {exc}")
+    sys.exit(0)
+
+if yaml is not None:
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        print(f"__ERROR__ {str(exc).splitlines()[0]}")
+        sys.exit(0)
+else:
+    # Minimal fallback parser for the flat two-level shape this config uses.
+    # Only scope.root, graphify.min_version, graphify.max_version are read.
+    data, section = {}, None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].rstrip()
+        if not line.strip():
+            continue
+        if not line.startswith(" "):
+            key = line.split(":", 1)[0].strip()
+            section = key
+            data[section] = {}
+        else:
+            if ":" not in line:
+                print("__ERROR__ malformed line (no colon)")
+                sys.exit(0)
+            k, v = line.split(":", 1)
+            data.setdefault(section, {})[k.strip()] = v.strip().strip('"').strip("'")
+
+if data is None:
+    data = {}
+if not isinstance(data, dict):
+    print("__ERROR__ top level is not a mapping")
+    sys.exit(0)
+
+scope = data.get("scope") or {}
+graphify = data.get("graphify") or {}
+if not isinstance(scope, dict) or not isinstance(graphify, dict):
+    print("__ERROR__ scope/graphify are not mappings")
+    sys.exit(0)
+
+for key, value in (
+    ("scope_root", scope.get("root")),
+    ("min_version", graphify.get("min_version")),
+    ("max_version", graphify.get("max_version")),
+):
+    if value is not None:
+        print(f"{key}={value}")
+PY
+    )"
+
+    if printf '%s\n' "$parsed" | grep -q '^__ERROR__'; then
+        local reason
+        reason="$(printf '%s\n' "$parsed" | grep '^__ERROR__' | head -n 1 | sed 's/^__ERROR__ //')"
+        note "config file is malformed: ${config}"
+        note "  ${reason}"
+        note ""
+        note "Refusing to fall back to defaults — that would run the build in a way you"
+        note "did not configure and could not see. Fix the file, or remove it to use"
+        note "defaults deliberately."
+        emit outcome config-invalid
+        exit "$EXIT_USAGE"
+    fi
+
+    local cfg_root cfg_min cfg_max
+    cfg_root="$(printf '%s\n' "$parsed" | grep '^scope_root=' | cut -d= -f2-)"
+    cfg_min="$(printf '%s\n' "$parsed" | grep '^min_version=' | cut -d= -f2-)"
+    cfg_max="$(printf '%s\n' "$parsed" | grep '^max_version=' | cut -d= -f2-)"
+
+    [ -n "$cfg_root" ] && [ "$ARG_PATH" = "." ] && ARG_PATH="$cfg_root"
+    [ -n "$cfg_min" ] && [ "$ARG_MIN_VERSION" = "$DEFAULT_MIN_VERSION" ] && ARG_MIN_VERSION="$cfg_min"
+    [ -n "$cfg_max" ] && [ "$ARG_MAX_VERSION" = "$DEFAULT_MAX_VERSION" ] && ARG_MAX_VERSION="$cfg_max"
+}
+
+# ---------------------------------------------------------------------------
 # Output helpers
 #
 # stdout carries machine-readable key=value lines only. Everything a human reads
@@ -537,6 +642,9 @@ main() {
     # Absolute before anything can change directory.
     EXT_DIR="$(pwd -P)/.specify/extensions/llm-wiki-graphify"
     LOCK_DIR="${EXT_DIR}/build.lock"
+
+    # Config is read from the project root, before any mode changes directory.
+    load_config
 
     case "$MODE" in
         check) mode_check ;;

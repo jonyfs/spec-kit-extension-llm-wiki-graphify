@@ -327,5 +327,51 @@ else
     fail "built and current differ" "only ${collected} distinct outcome(s) seen"
 fi
 
+
+printf '\nConfiguration\n'
+
+# Config narrows scope: a config.yml at the project root pointing scope.root at a
+# subdirectory must change the reported root. Proven by an observable difference,
+# never by the absence of an error (FR-009).
+cfgroot="${WORK}/cfg"
+mkdir -p "${cfgroot}/only/src" "${cfgroot}/.specify/extensions/llm-wiki-graphify"
+printf 'def only():\n    return 1\n' >"${cfgroot}/only/src/o.py"
+printf 'def ignored():\n    return 2\n' >"${cfgroot}/other.py"
+cat >"${cfgroot}/.specify/extensions/llm-wiki-graphify/config.yml" <<'CFG'
+scope:
+  root: only
+CFG
+cfg_out="$(cd "${cfgroot}" && bash "$SCRIPT" scope 2>/dev/null)"
+cfg_root="$(printf '%s\n' "$cfg_out" | grep '^root=' | cut -d= -f2)"
+case "$cfg_root" in
+    */only) pass "config scope.root narrows the reported root" ;;
+    *) fail "config scope.root narrows the reported root" "root was ${cfg_root}" ;;
+esac
+
+# Config raises the version floor above the installed graphify: proves the value
+# was read, since the default floor would pass (FR-009).
+mkdir -p "${WORK}/cfgfloor/.specify/extensions/llm-wiki-graphify"
+cat >"${WORK}/cfgfloor/.specify/extensions/llm-wiki-graphify/config.yml" <<'CFG'
+graphify:
+  min_version: "99.0.0"
+CFG
+assert_run "config raises the version floor, tripping dependency-too-old" 5 dependency-too-old -- \
+    env bash -c "cd '${WORK}/cfgfloor' && bash '$SCRIPT' check"
+
+# Missing config is silent and defaulted.
+mkdir -p "${WORK}/cfgnone"
+none_out="$(cd "${WORK}/cfgnone" && bash "$SCRIPT" check 2>&1 >/dev/null || true)"
+if printf '%s' "$none_out" | grep -qi 'config'; then
+    fail "missing config is silent" "warned about config: ${none_out}"
+else
+    pass "missing config is silent — no warning about the absent file"
+fi
+
+# Malformed config stops distinctly rather than defaulting silently.
+mkdir -p "${WORK}/cfgbad/.specify/extensions/llm-wiki-graphify"
+printf 'scope:\n  root: [unclosed\n:::not yaml\n' >"${WORK}/cfgbad/.specify/extensions/llm-wiki-graphify/config.yml"
+assert_run "malformed config stops with config-invalid" 2 config-invalid -- \
+    env bash -c "cd '${WORK}/cfgbad' && bash '$SCRIPT' check"
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

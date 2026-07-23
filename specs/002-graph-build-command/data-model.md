@@ -24,8 +24,11 @@ The file is optional; every field has a default, and a missing file is not an er
 | `graphify.max_version` | version string, exclusive | `0.10.0` | The dependency is pre-1.0 and makes no compatibility promise between minors (research R14) |
 | `report.show_top_communities` | integer | `5` | `0` disables the section; negative is rejected |
 
-**State**: none. The config is read once per invocation and never written by the
-extension.
+**State**: none. The config is read once per invocation and never written by the extension.
+As of feature 003 the script reads `config.yml` (closing the gap research R4 identified):
+`scope.root`, `graphify.min_version`, and `graphify.max_version` override the compiled
+defaults, a missing file is silent, and a malformed file stops with `config-invalid`
+(exit 2) rather than defaulting silently.
 
 ### BuildRequest
 

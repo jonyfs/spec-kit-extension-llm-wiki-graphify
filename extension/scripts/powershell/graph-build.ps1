@@ -467,7 +467,63 @@ function Invoke-Build {
 
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Configuration
+#
+# Behavioural counterpart of load_config in the bash variant. A missing config is
+# silent and defaulted; a malformed config stops with config-invalid rather than
+# defaulting silently. Precedence: command-line argument, then config, then the
+# compiled default — so a config value applies only where the argument still holds
+# its default.
+# ---------------------------------------------------------------------------
+
+function Load-Config {
+    $config = Join-Path $ExtDir 'config.yml'
+    if (-not (Test-Path $config)) { return }
+
+    $cfgRoot = $null
+    $cfgMin = $null
+    $cfgMax = $null
+    $section = $null
+
+    foreach ($raw in Get-Content -Path $config) {
+        $line = ($raw -split '#', 2)[0].TrimEnd()
+        if (-not $line.Trim()) { continue }
+
+        if ($line -notmatch '^\s') {
+            $section = ($line -split ':', 2)[0].Trim()
+            continue
+        }
+
+        if ($line -notmatch ':') {
+            Note "config file is malformed: $config"
+            Note '  malformed line (no colon)'
+            Note ''
+            Note 'Refusing to fall back to defaults — that would run the build in a way you'
+            Note 'did not configure and could not see. Fix the file, or remove it to use'
+            Note 'defaults deliberately.'
+            Stop-With $ExitUsage 'config-invalid'
+        }
+
+        $parts = $line.Split(':', 2)
+        $key = $parts[0].Trim()
+        $value = $parts[1].Trim().Trim('"').Trim("'")
+
+        switch ("$section.$key") {
+            'scope.root' { $cfgRoot = $value }
+            'graphify.min_version' { $cfgMin = $value }
+            'graphify.max_version' { $cfgMax = $value }
+        }
+    }
+
+    if ($cfgRoot -and $Path -eq '.') { $script:Path = $cfgRoot }
+    if ($cfgMin -and $MinVersion -eq '0.9.9') { $script:MinVersion = $cfgMin }
+    if ($cfgMax -and $MaxVersion -eq '0.10.0') { $script:MaxVersion = $cfgMax }
+}
+
 try {
+    Load-Config
+
     switch ($Mode) {
         'check' { Invoke-Check }
         'scope' { Invoke-Scope }
