@@ -45,8 +45,9 @@ were — by broken-package fixtures that each assertion must be observed failing
 
 **Target Platform**: Linux and Windows CI runners, plus a maintainer's machine.
 
-**Project Type**: a validation harness for a Spec Kit extension package. No product code
-changes; `extension/` is not touched by this feature.
+**Project Type**: a validation harness for a Spec Kit extension package. One small product
+change — the config read the harness's US3 depends on (see the decision below); everything
+else is pure verification.
 
 **Performance Goals**: a full run in under 5 minutes of wall clock (SC-003), dominated by
 `specify init` and one real graph build.
@@ -148,8 +149,13 @@ ways forward, to decide at `/speckit-tasks` or with the user:
    executable documentation of an unmet manifest promise. Consistent with Principle XV, but
    a red suite in CI needs a stated expiry.
 
-The plan does not pick one silently; it records the choice as the first thing `/speckit-tasks`
-must resolve.
+**Decision (2026-07-22): option 1.** The config read is added to the feature-002 script
+first, as the opening task, so US3 passes honestly rather than shipping red. This revises
+one assumption in this plan — that the feature touches no file under `extension/`. It now
+touches exactly one: `graph-build.sh` / `.ps1` gain a small config-reading step. The
+revision is recorded here rather than left as a silent contradiction, and the Constitution
+Check row for VI/III is unaffected because the change is additive and carries no
+placeholders. Everything else in the feature remains pure verification.
 
 ## Phase Outputs
 
